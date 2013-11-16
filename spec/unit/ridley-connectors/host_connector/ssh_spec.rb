@@ -4,7 +4,7 @@ describe Ridley::HostConnector::SSH do
   subject { connector }
   let(:connector) { described_class.new }
 
-  let(:host) { 'reset.riotgames.com' }
+  let(:host) { 'fake.riotgames.com' }
   let(:options) do
     {
       server_url: double('server_url'),

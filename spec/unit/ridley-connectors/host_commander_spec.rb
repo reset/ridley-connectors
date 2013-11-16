@@ -4,7 +4,7 @@ describe Ridley::HostCommander do
   subject { described_class.new }
 
   describe "#run" do
-    let(:host) { "reset.riotgames.com" }
+    let(:host) { "fake.riotgames.com" }
     let(:command) { "ls" }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
@@ -38,7 +38,7 @@ describe Ridley::HostCommander do
   end
 
   describe "#bootstrap" do
-    let(:host) { "reset.riotgames.com" }
+    let(:host) { "fake.riotgames.com" }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
     end
@@ -71,7 +71,7 @@ describe Ridley::HostCommander do
   end
 
   describe "#chef_client" do
-    let(:host) { "reset.riotgames.com" }
+    let(:host) { "fake.riotgames.com" }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
     end
@@ -104,7 +104,7 @@ describe Ridley::HostCommander do
   end
 
   describe "#put_secret" do
-    let(:host) { "reset.riotgames.com" }
+    let(:host) { "fake.riotgames.com" }
     let(:secret) { "something_secret" }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
@@ -138,7 +138,7 @@ describe Ridley::HostCommander do
   end
 
   describe "#ruby_script" do
-    let(:host) { "reset.riotgames.com" }
+    let(:host) { "fake.riotgames.com" }
     let(:command_lines) { ["line one"] }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
