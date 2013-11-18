@@ -1,6 +1,5 @@
 require 'bundler'
 require 'rubygems'
-require 'spork'
 require 'buff/ruby_engine'
 
 def setup_rspec
