@@ -1,6 +1,6 @@
-require 'rubygems'
 require 'bundler'
-require 'buff/ruby_engine'
+require 'rubygems'
+require 'spork'
 
 def setup_rspec
   require 'rspec'
@@ -24,17 +24,13 @@ def setup_rspec
   end
 end
 
-if Buff::RubyEngine.mri? && ENV['CI'] != 'true'
-  require 'spork'
-
-  Spork.prefork do
-    setup_rspec
-  end
-
-  Spork.each_run do
-    require 'ridley-connectors'
-  end
-else
-  require 'ridley-connectors'
+Spork.prefork do
   setup_rspec
 end
+
+Spork.each_run do
+  require 'ridley-connectors'
+end
+
+require 'ridley-connectors'
+setup_rspec
