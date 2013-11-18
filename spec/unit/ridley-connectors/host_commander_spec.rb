@@ -62,7 +62,7 @@ describe Ridley::HostCommander do
         subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(false)
       end
 
-      it "sends a #bootstrap message to the ssh host connector" do
+      it "sends a #bootstrap message to the winrm host connector" do
         subject.send(:winrm).should_receive(:bootstrap).with(host, options)
 
         subject.bootstrap(host, options)
