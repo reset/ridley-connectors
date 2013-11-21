@@ -12,17 +12,17 @@ class Default < Thor
   include Thor::RakeCompat
   Bundler::GemHelper.install_tasks
 
-  desc "build", "Build ridley-connectors-#{Ridley::VERSION}.gem into the pkg directory"
+  desc "build", "Build ridley-connectors-#{Ridley::Connectors::VERSION}.gem into the pkg directory"
   def build
     Rake::Task["build"].execute
   end
 
-  desc "install", "Build and install ridley-connectors-#{Ridley::VERSION}.gem into system gems"
+  desc "install", "Build and install ridley-connectors-#{Ridley::Connectors::VERSION}.gem into system gems"
   def install
     Rake::Task["install"].execute
   end
 
-  desc "release", "Create tag v#{Ridley::VERSION} and build and push ridley-connectors-#{Ridley::VERSION}.gem to Rubygems"
+  desc "release", "Create tag v#{Ridley::Connectors::VERSION} and build and push ridley-connectors-#{Ridley::Connectors::VERSION}.gem to Rubygems"
   def release
     Rake::Task["release"].execute
   end
