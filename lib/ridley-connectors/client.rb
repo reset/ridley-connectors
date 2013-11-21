@@ -39,15 +39,16 @@ module Ridley
     #
     # @raise [Errors::ClientKeyFileNotFoundOrInvalid] if the option for :client_key does not contain
     #   a file path pointing to a readable client key, or is a string containing a valid key
+    alias_method :old_initialize, :initialize
     def initialize(options = {})
-      super
+      old_initialize(options)
       @options = options.reverse_merge(
         ssh: Hash.new,
         winrm: Hash.new,
       ).deep_symbolize_keys
 
-      @ssh              = @options[:ssh]
-      @winrm            = @options[:winrm]
-    end    
+      @ssh   = @options[:ssh]
+      @winrm = @options[:winrm]
+    end
   end
 end
