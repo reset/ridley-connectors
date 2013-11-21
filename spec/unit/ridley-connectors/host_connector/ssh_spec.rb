@@ -49,8 +49,8 @@ describe Ridley::HostConnector::SSH do
         Ridley::HostConnector::Response.any_instance.stub(:exit_code).and_return(0)
       end
 
-      it "logs nothing incriminating" do
-        expect(Ridley::Logging.logger).to receive(:info).with("Running SSH command: MASKED on: '#{host}' as: '#{options[:ssh][:user]}'")
+      it "masks the secret key" do
+        expect(Ridley::Logging.logger).to receive(:info).with("Running command: MASKED on: '#{host}' as: '#{options[:ssh][:user]}'")
         expect(Ridley::Logging.logger).to receive(:info).with("Successfully ran SSH command on: 'fake.riotgames.com' as: ''")
 
         connector.put_secret(host, secret, options)

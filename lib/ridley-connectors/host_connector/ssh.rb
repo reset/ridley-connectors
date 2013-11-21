@@ -30,7 +30,7 @@ module Ridley
 
         Ridley::HostConnector::Response.new(host).tap do |response|
           begin
-            log.info command_logging(host, command, options)
+            log.info command_logging(host, command, secure: options[:secure], user: options[:ssh][:user])
 
             defer {
               Net::SSH.start(host, options[:ssh][:user], options[:ssh].slice(*Net::SSH::VALID_OPTIONS)) do |ssh|
@@ -182,18 +182,6 @@ module Ridley
       end
 
       private
-
-        def command_logging(host, command, options)
-          String.new.tap do |message|
-            message << "Running SSH command: "
-            if options[:secure]
-              message << "MASKED "
-            else
-              message << "'#{command}' "
-            end
-            message << "on: '#{host}' as: '#{options[:ssh][:user]}'"
-          end
-        end
 
         def channel_exec(channel, command, host, response)
           channel.exec(command) do |ch, success|

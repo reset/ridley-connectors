@@ -74,6 +74,32 @@ module Ridley
       def uninstall_chef(host, options = {})
         raise RuntimeError, "abstract function: must be implemented on includer"
       end
+
+      private
+
+        # Creates a logging String indicating the command that will be run
+        #
+        # @param [String] host
+        #   the host to perform the command on
+        # @param [String] command
+        #   the command being run
+        # @option options [Boolean] :secure
+        #   whether or not the command should be masked
+        # @option options [String] :user
+        #   the user executing the command
+        #
+        # @return [String]
+        def command_logging(host, command, options)
+          String.new.tap do |message|
+            message << "Running command: "
+            if options[:secure]
+              message << "MASKED "
+            else
+              message << "'#{command}' "
+            end
+            message << "on: '#{host}' as: '#{options[:user]}'"
+          end
+        end
     end
 
     require_relative 'host_connector/response'

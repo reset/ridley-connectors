@@ -11,7 +11,8 @@ describe Ridley::HostConnector::WinRM do
       validator_client: double('validator_client'),
       encrypted_data_bag_secret: 'encrypted_data_bag_secret',
       winrm: Hash.new,
-      chef_version: double('chef_version')
+      chef_version: double('chef_version'),
+      secure: true
     }
   end
 
@@ -126,6 +127,19 @@ describe Ridley::HostConnector::WinRM do
       )
 
       put_secret
+    end
+
+    context "when the secure option is passed" do
+      before do
+        Ridley::HostConnector::WinRM::CommandUploader.stub(:new).and_return(double(:cleanup => nil))
+        ::WinRM::WinRMWebService.stub(:new).and_return(double(:set_timeout => nil, :run_cmd => {exitcode: 0}))
+      end
+
+      it "masks the secret key" do
+        expect(Ridley::Logging.logger).to receive(:info).with("Running command: MASKED on: '#{host}' as: '#{options[:winrm][:user]}'")
+        expect(Ridley::Logging.logger).to receive(:info).with("Successfully ran WinRM command on: 'fake.riotgames.com' as: ''")
+        put_secret
+      end
     end
   end
 
