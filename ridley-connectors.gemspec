@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+require File.expand_path('../lib/ridley-connectors/version', __FILE__)
 
 Gem::Specification.new do |s|
   s.authors       = ["Jamie Winsor", "Kyle Allan"]
@@ -13,7 +14,7 @@ Gem::Specification.new do |s|
   s.test_files    = s.files.grep(%r{^(spec)/})
   s.name          = "ridley-connectors"
   s.require_paths = ["lib"]
-  s.version       = "0.0.1"
+  s.version       = Ridley::Connectors::VERSION
   s.required_ruby_version = ">= 1.9.1"
 
   s.add_dependency 'celluloid', '~> 0.15'
