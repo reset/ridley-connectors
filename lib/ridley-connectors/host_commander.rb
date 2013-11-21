@@ -217,7 +217,7 @@ module Ridley
       end
 
       def finalize_callback
-        @connector_supervisor.terminate if @connector_supervisor && @connector_supervisor.alive?
+        @connector_supervisor.async.terminate if @connector_supervisor && @connector_supervisor.alive?
       end
 
       def ssh
