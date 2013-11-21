@@ -12,6 +12,8 @@ module Ridley
       #   the host to perform the action on
       # @param [String] command
       #
+      # @option options [Boolean] :secure
+      #   Set to true to mask the logging of the command being run
       # @option options [Hash] :ssh
       #   * :user (String) a shell user that will login to each node and perform the bootstrap command on
       #   * :password (String) the password for the shell user that will perform the bootstrap
@@ -28,7 +30,7 @@ module Ridley
 
         Ridley::HostConnector::Response.new(host).tap do |response|
           begin
-            log.info "Running SSH command: '#{command}' on: '#{host}' as: '#{options[:ssh][:user]}'"
+            log.info command_logging(host, command, options)
 
             defer {
               Net::SSH.start(host, options[:ssh][:user], options[:ssh].slice(*Net::SSH::VALID_OPTIONS)) do |ssh|
@@ -54,7 +56,7 @@ module Ridley
           rescue Net::SSH::ConnectionTimeout, Timeout::Error
             response.exit_code = -1
             response.stderr    = "Connection timed out"
-          rescue Errno::EHOSTUNREACH
+          rescue SocketError, Errno::EHOSTUNREACH
             response.exit_code = -1
             response.stderr    = "Host unreachable"
           rescue Errno::ECONNREFUSED
@@ -132,7 +134,7 @@ module Ridley
       # @return [HostConnector::Response]
       def put_secret(host, secret, options = {})
         cmd = "echo '#{secret}' > /etc/chef/encrypted_data_bag_secret; chmod 0600 /etc/chef/encrypted_data_bag_secret"
-        run(host, cmd, options)
+        run(host, cmd, options.merge(secure: true))
       end
 
       # Execute line(s) of Ruby code on a node using Chef's embedded Ruby
@@ -180,6 +182,18 @@ module Ridley
       end
 
       private
+
+        def command_logging(host, command, options)
+          String.new.tap do |message|
+            message << "Running SSH command: "
+            if options[:secure]
+              message << "MASKED "
+            else
+              message << "'#{command}' "
+            end
+            message << "on: '#{host}' as: '#{options[:ssh][:user]}'"
+          end
+        end
 
         def channel_exec(channel, command, host, response)
           channel.exec(command) do |ch, success|
