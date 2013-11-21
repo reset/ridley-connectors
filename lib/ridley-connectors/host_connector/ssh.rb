@@ -30,7 +30,7 @@ module Ridley
 
         Ridley::HostConnector::Response.new(host).tap do |response|
           begin
-            log.info command_logging(host, command, secure: options[:secure], user: options[:ssh][:user])
+            log.info "Running SSH command: '#{command}' on: '#{host}' as: '#{options[:ssh][:user]}'"
 
             defer {
               Net::SSH.start(host, options[:ssh][:user], options[:ssh].slice(*Net::SSH::VALID_OPTIONS)) do |ssh|
@@ -133,8 +133,9 @@ module Ridley
       #
       # @return [HostConnector::Response]
       def put_secret(host, secret, options = {})
+        log.filter_param secret
         cmd = "echo '#{secret}' > /etc/chef/encrypted_data_bag_secret; chmod 0600 /etc/chef/encrypted_data_bag_secret"
-        run(host, cmd, options.merge(secure: true))
+        run(host, cmd, options)
       end
 
       # Execute line(s) of Ruby code on a node using Chef's embedded Ruby

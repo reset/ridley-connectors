@@ -53,7 +53,7 @@ module Ridley
             command_uploaders << command_uploader = CommandUploader.new(connection)
             command = get_command(command, command_uploader)
 
-            log.info command_logging(host, command, secure: options[:secure], user: options[:winrm][:user])
+            log.info "Running WinRM command: '#{command}' on: '#{host}' as: '#{user}'"
 
             defer {
               output = connection.send(command_method, command) do |stdout, stderr|
@@ -155,8 +155,9 @@ module Ridley
       #
       # @return [HostConnector::Response]
       def put_secret(host, secret, options = {})
+        log.filter_param secret
         command = "echo #{secret} > C:\\chef\\encrypted_data_bag_secret"
-        run(host, command, options.merge(secure: true))
+        run(host, command, options)
       end
 
       # Execute line(s) of Ruby code on a node using Chef's embedded Ruby
