@@ -22,8 +22,6 @@ module Ridley
       #   the host to perform the action on
       # @param [String] command
       #
-      # @option options [Boolean] :secure
-      #   Set to true to mask the logging of the command being run
       # @option options [Symbol] :session_type (:cmd)
       #   * :powershell - run the given command in a powershell session
       #   * :cmd - run the given command in a cmd session
@@ -155,7 +153,7 @@ module Ridley
       #
       # @return [HostConnector::Response]
       def put_secret(host, secret, options = {})
-        log.filter_param secret
+        log.filter_param(secret)
         command = "echo #{secret} > C:\\chef\\encrypted_data_bag_secret"
         run(host, command, options)
       end

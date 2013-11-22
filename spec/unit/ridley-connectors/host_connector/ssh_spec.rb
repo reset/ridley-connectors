@@ -12,8 +12,7 @@ describe Ridley::HostConnector::SSH do
       validator_client: double('validator_client'),
       encrypted_data_bag_secret: 'encrypted_data_bag_secret',
       ssh: Hash.new,
-      chef_version: double('chef_version'),
-      secure: true
+      chef_version: double('chef_version')
     }
   end
 
@@ -43,18 +42,9 @@ describe Ridley::HostConnector::SSH do
       connector.put_secret(host, secret, options)
     end
 
-    context "when the secure option is passed" do
-
-      before do
-        Ridley::HostConnector::Response.any_instance.stub(:exit_code).and_return(0)
-      end
-
-      it "masks the secret key" do
-        expect(Ridley::Logging.logger).to receive(:info).with("Running command: MASKED on: '#{host}' as: '#{options[:ssh][:user]}'")
-        expect(Ridley::Logging.logger).to receive(:info).with("Successfully ran SSH command on: 'fake.riotgames.com' as: ''")
-
-        connector.put_secret(host, secret, options)
-      end
+    it "filters the secret" do
+      expect(Ridley::Logging.logger).to receive(:filter_param).with(secret)
+      connector.put_secret(host, secret, options)
     end
   end
 

@@ -11,8 +11,7 @@ describe Ridley::HostConnector::WinRM do
       validator_client: double('validator_client'),
       encrypted_data_bag_secret: 'encrypted_data_bag_secret',
       winrm: Hash.new,
-      chef_version: double('chef_version'),
-      secure: true
+      chef_version: double('chef_version')
     }
   end
 
@@ -120,6 +119,11 @@ describe Ridley::HostConnector::WinRM do
     let(:encrypted_data_bag_secret_path) { fixtures_path.join("encrypted_data_bag_secret").to_s }
     let(:secret) { File.read(encrypted_data_bag_secret_path).chomp }
 
+    before do
+      Ridley::HostConnector::WinRM::CommandUploader.stub(:new).and_return(double(:cleanup => nil))
+      ::WinRM::WinRMWebService.stub(:new).and_return(double(:set_timeout => nil, :run_cmd => {exitcode: 0}))
+    end
+
     it "receives a command to copy the secret" do
       connector.should_receive(:run).with(host,
         "echo #{secret} > C:\\chef\\encrypted_data_bag_secret",
@@ -129,17 +133,9 @@ describe Ridley::HostConnector::WinRM do
       put_secret
     end
 
-    context "when the secure option is passed" do
-      before do
-        Ridley::HostConnector::WinRM::CommandUploader.stub(:new).and_return(double(:cleanup => nil))
-        ::WinRM::WinRMWebService.stub(:new).and_return(double(:set_timeout => nil, :run_cmd => {exitcode: 0}))
-      end
-
-      it "masks the secret key" do
-        expect(Ridley::Logging.logger).to receive(:info).with("Running command: MASKED on: '#{host}' as: '#{options[:winrm][:user]}'")
-        expect(Ridley::Logging.logger).to receive(:info).with("Successfully ran WinRM command on: 'fake.riotgames.com' as: ''")
-        put_secret
-      end
+    it "filters the secret" do
+      expect(Ridley::Logging.logger).to receive(:filter_param).with(secret)
+      put_secret
     end
   end
 

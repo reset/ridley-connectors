@@ -12,8 +12,6 @@ module Ridley
       #   the host to perform the action on
       # @param [String] command
       #
-      # @option options [Boolean] :secure
-      #   Set to true to mask the logging of the command being run
       # @option options [Hash] :ssh
       #   * :user (String) a shell user that will login to each node and perform the bootstrap command on
       #   * :password (String) the password for the shell user that will perform the bootstrap
@@ -133,7 +131,7 @@ module Ridley
       #
       # @return [HostConnector::Response]
       def put_secret(host, secret, options = {})
-        log.filter_param secret
+        log.filter_param(secret)
         cmd = "echo '#{secret}' > /etc/chef/encrypted_data_bag_secret; chmod 0600 /etc/chef/encrypted_data_bag_secret"
         run(host, cmd, options)
       end
