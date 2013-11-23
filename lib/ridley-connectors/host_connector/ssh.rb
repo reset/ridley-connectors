@@ -95,6 +95,7 @@ module Ridley
         context = BootstrapContext::Unix.new(options)
 
         log.info "Bootstrapping host: #{host}"
+        log.filter_param(context.boot_command)
         run(host, context.boot_command, options)
       end
 

@@ -17,8 +17,15 @@ describe Ridley::HostConnector::SSH do
   end
 
   describe "#bootstrap" do
+    let(:bootstrap_context) { Ridley::BootstrapContext::Unix.new(options) }
+
     it "sends a #run message to self to bootstrap a node" do
       connector.should_receive(:run).with(host, anything, options)
+      connector.bootstrap(host, options)
+    end
+
+    it "filters the whole command" do
+      expect(Ridley::Logging.logger).to receive(:filter_param).with(bootstrap_context.boot_command)
       connector.bootstrap(host, options)
     end
   end

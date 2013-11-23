@@ -4,6 +4,7 @@ describe Ridley::HostConnector::WinRM do
   subject { connector }
   let(:connector) { described_class.new }
   let(:host) { 'fake.riotgames.com' }
+  let(:command_uploader_double) { double('command_uploader', :cleanup => nil, :upload => nil, :command => nil) }
   let(:options) do
     {
       server_url: double('server_url'),
@@ -15,7 +16,10 @@ describe Ridley::HostConnector::WinRM do
     }
   end
 
-  before { described_class::CommandUploader.stub(:new).and_return(double('command_uploader')) }
+  before do
+    described_class::CommandUploader.stub(:new).and_return(command_uploader_double)
+    ::WinRM::WinRMWebService.stub(:new).and_return(double(:set_timeout => nil, :run_cmd => {exitcode: 0}))
+  end
 
   describe "#get_command" do
     subject(:get_command) { connector.get_command(command, command_uploader_stub) }
@@ -98,8 +102,15 @@ describe Ridley::HostConnector::WinRM do
   end
 
   describe "#bootstrap" do
+    let(:bootstrap_context) { Ridley::BootstrapContext::Windows.new(options) }
+
     it "sends a #run message to self to bootstrap a node" do
       connector.should_receive(:run).with(host, anything, options)
+      connector.bootstrap(host, options)
+    end
+
+    it "filters the whole command" do
+      expect(Ridley::Logging.logger).to receive(:filter_param).with(bootstrap_context.boot_command)
       connector.bootstrap(host, options)
     end
   end
@@ -121,7 +132,6 @@ describe Ridley::HostConnector::WinRM do
 
     before do
       Ridley::HostConnector::WinRM::CommandUploader.stub(:new).and_return(double(:cleanup => nil))
-      ::WinRM::WinRMWebService.stub(:new).and_return(double(:set_timeout => nil, :run_cmd => {exitcode: 0}))
     end
 
     it "receives a command to copy the secret" do
