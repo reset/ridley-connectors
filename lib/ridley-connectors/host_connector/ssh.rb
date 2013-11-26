@@ -54,7 +54,7 @@ module Ridley
           rescue Net::SSH::ConnectionTimeout, Timeout::Error
             response.exit_code = -1
             response.stderr    = "Connection timed out"
-          rescue Errno::EHOSTUNREACH
+          rescue SocketError, Errno::EHOSTUNREACH
             response.exit_code = -1
             response.stderr    = "Host unreachable"
           rescue Errno::ECONNREFUSED
@@ -95,6 +95,7 @@ module Ridley
         context = BootstrapContext::Unix.new(options)
 
         log.info "Bootstrapping host: #{host}"
+        log.filter_param(context.boot_command)
         run(host, context.boot_command, options)
       end
 
@@ -131,6 +132,7 @@ module Ridley
       #
       # @return [HostConnector::Response]
       def put_secret(host, secret, options = {})
+        log.filter_param(secret)
         cmd = "echo '#{secret}' > /etc/chef/encrypted_data_bag_secret; chmod 0600 /etc/chef/encrypted_data_bag_secret"
         run(host, cmd, options)
       end

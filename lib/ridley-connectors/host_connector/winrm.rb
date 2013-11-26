@@ -51,7 +51,7 @@ module Ridley
             command_uploaders << command_uploader = CommandUploader.new(connection)
             command = get_command(command, command_uploader)
 
-            log.info "Running WinRM Command: '#{command}' on: '#{host}' as: '#{user}'"
+            log.info "Running WinRM command: '#{command}' on: '#{host}' as: '#{user}'"
 
             defer {
               output = connection.send(command_method, command) do |stdout, stderr|
@@ -121,6 +121,7 @@ module Ridley
         context = BootstrapContext::Windows.new(options)
 
         log.info "Bootstrapping host: #{host}"
+        log.filter_param(context.boot_command)
         run(host, context.boot_command, options)
       end
 
@@ -153,6 +154,7 @@ module Ridley
       #
       # @return [HostConnector::Response]
       def put_secret(host, secret, options = {})
+        log.filter_param(secret)
         command = "echo #{secret} > C:\\chef\\encrypted_data_bag_secret"
         run(host, command, options)
       end

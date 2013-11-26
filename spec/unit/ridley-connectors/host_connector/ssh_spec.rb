@@ -17,8 +17,15 @@ describe Ridley::HostConnector::SSH do
   end
 
   describe "#bootstrap" do
+    let(:bootstrap_context) { Ridley::BootstrapContext::Unix.new(options) }
+
     it "sends a #run message to self to bootstrap a node" do
       connector.should_receive(:run).with(host, anything, options)
+      connector.bootstrap(host, options)
+    end
+
+    it "filters the whole command" do
+      expect(Ridley::Logging.logger).to receive(:filter_param).with(bootstrap_context.boot_command)
       connector.bootstrap(host, options)
     end
   end
@@ -39,6 +46,11 @@ describe Ridley::HostConnector::SSH do
         "echo '#{secret}' > /etc/chef/encrypted_data_bag_secret; chmod 0600 /etc/chef/encrypted_data_bag_secret",
         options
       )
+      connector.put_secret(host, secret, options)
+    end
+
+    it "filters the secret" do
+      expect(Ridley::Logging.logger).to receive(:filter_param).with(secret)
       connector.put_secret(host, secret, options)
     end
   end
