@@ -1,3 +1,7 @@
+## v.1.1.0
+
+* [#2](https://github.com/RiotGames/ridley-connectors/pull/2) Copying an encrypted data bag should not expose the secret
+
 ## v.1.0.1
 
 * [#3](https://github.com/RiotGames/ridley-connectors/pull/3) Fix the broken Ridley::Client
