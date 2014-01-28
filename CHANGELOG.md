@@ -1,3 +1,7 @@
+## v.1.2.0
+
+* Bumping internal dependency on Ridley to at least 2.4.2
+
 ## v.1.1.0
 
 * [#2](https://github.com/RiotGames/ridley-connectors/pull/2) Copying an encrypted data bag should not expose the secret
