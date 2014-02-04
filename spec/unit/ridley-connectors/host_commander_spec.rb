@@ -167,7 +167,7 @@ describe Ridley::HostCommander do
     end
   end
 
-  describe "#connector_for", focus: true do
+  describe "#connector_for" do
     it "should return winrm if winrm is open" do
       subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT).and_return(true)
       subject.should_receive(:winrm)
