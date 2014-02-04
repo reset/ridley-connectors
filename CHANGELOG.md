@@ -1,3 +1,8 @@
+## v.1.2.1
+
+* [#8](https://github.com/RiotGames/ridley-connectors/pull/8) Add a flag to execute Ruby scripts on Windows machines using a batch file
+* [#9](https://github.com/RiotGames/ridley-connectors/pull/9) Fix a bug where a nil value for SSH or WinRM config would cause a NoMethodError
+
 ## v.1.2.0
 
 * Bumping internal dependency on Ridley to at least 2.4.2
