@@ -2,9 +2,9 @@ require 'spec_helper'
 
 describe Ridley::HostCommander do
   subject { described_class.new }
+  let(:host) { "fake.riotgames.com" }
 
   describe "#run" do
-    let(:host) { "fake.riotgames.com" }
     let(:command) { "ls" }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
@@ -38,7 +38,6 @@ describe Ridley::HostCommander do
   end
 
   describe "#bootstrap" do
-    let(:host) { "fake.riotgames.com" }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
     end
@@ -71,7 +70,6 @@ describe Ridley::HostCommander do
   end
 
   describe "#chef_client" do
-    let(:host) { "fake.riotgames.com" }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
     end
@@ -104,7 +102,6 @@ describe Ridley::HostCommander do
   end
 
   describe "#put_secret" do
-    let(:host) { "fake.riotgames.com" }
     let(:secret) { "something_secret" }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
@@ -138,7 +135,6 @@ describe Ridley::HostCommander do
   end
 
   describe "#ruby_script" do
-    let(:host) { "fake.riotgames.com" }
     let(:command_lines) { ["line one"] }
     let(:options) do
       { ssh: { port: 22 }, winrm: { port: 5985 } }
@@ -168,6 +164,27 @@ describe Ridley::HostCommander do
 
         subject.ruby_script(host, command_lines, options)
       end
+    end
+  end
+
+  describe "#connector_for", focus: true do
+    it "should return winrm if winrm is open" do
+      subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT).and_return(true)
+      subject.should_receive(:winrm)
+      subject.connector_for(host)
+    end
+    
+    it "should return winrm if winrm is open" do
+      subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT).and_return(false)
+      subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::SSH::DEFAULT_PORT, nil).and_return(true)
+      subject.should_receive(:ssh)
+      subject.connector_for(host)
+    end
+
+    it "should still set the default ports if an explicit nil is passed in" do
+      subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT).and_return(true)
+      subject.should_receive(:winrm)
+      subject.connector_for(host, winrm: nil, ssh: nil)
     end
   end
 end
