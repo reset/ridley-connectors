@@ -29,6 +29,8 @@ module Ridley
       #   * :user (String) a user that will login to each node and perform the bootstrap command on
       #   * :password (String) the password for the user that will perform the bootstrap (required)
       #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
+      # @option options [TrueClass, FalseClass] :force_batch_file
+      #   Always use a batch file to run the command regardless of command length.
       #
       # @return [HostConnector::Response]
       def run(host, command, options = {})
@@ -49,7 +51,7 @@ module Ridley
         HostConnector::Response.new(host).tap do |response|
           begin
             command_uploaders << command_uploader = CommandUploader.new(connection)
-            command = get_command(command, command_uploader)
+            command = get_command(command, command_uploader, force_batch_file: options[:force_batch_file])
 
             log.info "Running WinRM command: '#{command}' on: '#{host}' as: '#{user}'"
 
@@ -93,10 +95,14 @@ module Ridley
       # limit. Otherwise, we return an execution of the command as a batch file.
       #
       # @param  command [String]
+      # @param  options [Hash]
+      #
+      # @option options [TrueClass, FalseClass] :force_batch_file
+      #   Always use a batch file to run the command regardless of command length.
       #
       # @return [String]
-      def get_command(command, command_uploader)
-        if command.length < CommandUploader::CHUNK_LIMIT
+      def get_command(command, command_uploader, options = {})
+        if !options[:force_batch_file] && command.length < CommandUploader::CHUNK_LIMIT
           command
         else
           log.debug "Detected a command that was longer than #{CommandUploader::CHUNK_LIMIT} characters. " +
@@ -159,7 +165,10 @@ module Ridley
         run(host, command, options)
       end
 
-      # Execute line(s) of Ruby code on a node using Chef's embedded Ruby
+      # Execute line(s) of Ruby code on a node using Chef's embedded
+      # Ruby. This will always run via a batch file due to WinRM
+      # having difficulty handling long ruby scripts being passed via
+      # ruby -e.
       #
       # @param [String] host
       #   the host to perform the action on
@@ -174,7 +183,7 @@ module Ridley
       # @return [HostConnector::Response]
       def ruby_script(host, command_lines, options = {})
         command = "#{EMBEDDED_RUBY_PATH} -e \"#{command_lines.join(';')}\""
-        run(host, command, options)
+        run(host, command, options.merge(force_batch_file: true))
       end
 
       # Uninstall Chef from a node
