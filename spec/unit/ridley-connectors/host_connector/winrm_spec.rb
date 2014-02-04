@@ -99,6 +99,16 @@ describe Ridley::HostConnector::WinRM do
         expect(result.stderr).to eql("WinRM::WinRMHTTPTransportError")
       end
     end
+
+    context "when the force_batch_file is true" do
+      let(:options_with_force_batch_file) { options.merge(force_batch_file: true) }
+      subject(:result) { connector.run(host, command, options_with_force_batch_file) }
+      it "should always use a command uploader when a force_batch_file is set to true" do
+        command_uploader_stub.should_receive(:upload).with(command)
+        command_uploader_stub.should_receive(:command).and_return(command)
+        result
+      end
+    end
   end
 
   describe "#bootstrap" do
@@ -156,7 +166,7 @@ describe Ridley::HostConnector::WinRM do
     it "receives a ruby call with the command" do
       connector.should_receive(:run).with(host,
         "#{described_class::EMBEDDED_RUBY_PATH} -e \"puts 'hello';puts 'there'\"",
-        options
+        options.merge(force_batch_file: true)
       )
 
       ruby_script

@@ -18,7 +18,6 @@ describe Ridley::HostCommander do
 
       it "sends a #run message to the ssh host connector" do
         subject.send(:ssh).should_receive(:run).with(host, command, options)
-
         subject.run(host, command, options)
       end
     end
