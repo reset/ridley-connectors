@@ -1,3 +1,6 @@
+## v.1.3.0
+* [#11](https://github.com/RiotGames/ridley-connectors/pull/11) use -E on sudo to preserve the environment
+
 ## v.1.2.1
 
 * [#8](https://github.com/RiotGames/ridley-connectors/pull/8) Add a flag to execute Ruby scripts on Windows machines using a batch file
