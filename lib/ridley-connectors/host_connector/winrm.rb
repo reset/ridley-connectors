@@ -207,6 +207,23 @@ module Ridley
         run(host, CommandContext::WindowsUninstall.command(options), options)
       end
 
+      # Checks to see if the given port is open for TCP connections
+      # on the given host.
+      #
+      # @param [String] host
+      #   the host to attempt to connect to
+      # @option options [Hash] :winrm
+      #   * port (Fixnum) the winrm port to connect to
+      #
+      # @return [Boolean]
+      def connector_port_open?(host, options = {})
+        options[:winrm]        ||= Hash.new
+        options[:winrm][:port] ||= HostConnector::WinRM::DEFAULT_PORT
+
+        port_open?(host, options[:winrm][:port])
+      end
+
+
       private
 
         # @param [String] host

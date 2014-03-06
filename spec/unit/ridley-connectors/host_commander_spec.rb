@@ -12,8 +12,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a unix node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(false)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(true)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(false)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(true)
       end
 
       it "sends a #run message to the ssh host connector" do
@@ -24,8 +24,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a windows node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(true)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(false)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(true)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(false)
       end
 
       it "sends a #run message to the ssh host connector" do
@@ -43,8 +43,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a unix node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(false)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(true)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(false)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(true)
       end
 
       it "sends a #bootstrap message to the ssh host connector" do
@@ -56,8 +56,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a windows node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(true)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(false)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(true)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(false)
       end
 
       it "sends a #bootstrap message to the winrm host connector" do
@@ -75,8 +75,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a unix node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(false)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(true)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(false)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(true)
       end
 
       it "sends a #chef_client message to the ssh host connector" do
@@ -88,8 +88,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a windows node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(true)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(false)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(true)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(false)
       end
 
       it "sends a #chef_client message to the ssh host connector" do
@@ -108,8 +108,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a unix node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(false)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(true)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(false)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(true)
       end
 
       it "sends a #put_secret message to the ssh host connector" do
@@ -121,8 +121,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a windows node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(true)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(false)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(true)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(false)
       end
 
       it "sends a #put_secret message to the ssh host connector" do
@@ -141,8 +141,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a unix node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(false)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(true)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(false)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(true)
       end
 
       it "sends a #ruby_script message to the ssh host connector" do
@@ -154,8 +154,8 @@ describe Ridley::HostCommander do
 
     context "when communicating to a windows node" do
       before do
-        subject.stub(:connector_port_open?).with(host, options[:winrm][:port]).and_return(true)
-        subject.stub(:connector_port_open?).with(host, options[:ssh][:port], anything).and_return(false)
+        subject.send(:winrm).stub(:connector_port_open?).with(host, options).and_return(true)
+        subject.send(:ssh).stub(:connector_port_open?).with(host, options).and_return(false)
       end
 
       it "sends a #ruby_script message to the ssh host connector" do
@@ -168,22 +168,14 @@ describe Ridley::HostCommander do
 
   describe "#connector_for" do
     it "should return winrm if winrm is open" do
-      subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT).and_return(true)
-      subject.should_receive(:winrm)
-      subject.connector_for(host)
-    end
-    
-    it "should return winrm if winrm is open" do
-      subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT).and_return(false)
-      subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::SSH::DEFAULT_PORT, nil).and_return(true)
-      subject.should_receive(:ssh)
-      subject.connector_for(host)
+      subject.send(:winrm).stub(:connector_port_open?).with(host, {}).and_return(true)
+      subject.connector_for(host).class.should == Ridley::HostConnector::WinRM
     end
 
-    it "should still set the default ports if an explicit nil is passed in" do
-      subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT).and_return(true)
-      subject.should_receive(:winrm)
-      subject.connector_for(host, winrm: nil, ssh: nil)
+    it "should return ssh if ssh is open" do
+      subject.send(:winrm).stub(:connector_port_open?).with(host, {}).and_return(false)
+      subject.send(:ssh).stub(:connector_port_open?).with(host, {}).and_return(true)
+      subject.connector_for(host).class.should == Ridley::HostConnector::SSH
     end
   end
 end

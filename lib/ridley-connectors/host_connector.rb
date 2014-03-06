@@ -4,6 +4,8 @@ module Ridley
       include Celluloid
       include Ridley::Logging
 
+      PORT_CHECK_TIMEOUT = 3
+
       # Execute a shell command on a node
       #
       # @param [String] host
@@ -74,6 +76,30 @@ module Ridley
       def uninstall_chef(host, options = {})
         raise RuntimeError, "abstract function: must be implemented on includer"
       end
+
+      def connector_port_open?
+        raise RuntimeError, "abstract function: must be implemented on includer"
+      end
+
+      # Checks to see if the given port is open for TCP connections
+      # on the given host.
+      #
+      # @param [String] host
+      #   the host to attempt to connect to
+      # @param [Fixnum] port
+      #   the port to attempt to connect on
+      # @param [Float] wait_time ({PORT_CHECK_TIMEOUT})
+      #   the number of seconds to wait
+      #
+      # @return [Boolean]
+      def port_open?(host, port, wait_time = nil)
+        defer {
+          Timeout.timeout(wait_time || PORT_CHECK_TIMEOUT) { Celluloid::IO::TCPSocket.new(host, port).close; true }
+        }
+      rescue Errno::ETIMEDOUT, Timeout::Error, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL => ex
+        false
+      end
+
     end
 
     require_relative 'host_connector/response'

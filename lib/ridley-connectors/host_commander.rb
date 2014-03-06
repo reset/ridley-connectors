@@ -12,8 +12,6 @@ module Ridley
     include Celluloid
     include Ridley::Logging
 
-    PORT_CHECK_TIMEOUT = 3
-
     finalizer :finalize_callback
 
     def initialize
@@ -163,6 +161,7 @@ module Ridley
     # @option options [Hash] :ssh
     #   * :port (Fixnum) the ssh port to connect on the node the bootstrap will be performed on (22)
     #   * :timeout (Float) [5.0] timeout value for testing SSH connection
+    #   * :gateway (String) user@host:port
     # @option options [Hash] :winrm
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
     # @param block [Proc]
@@ -170,15 +169,10 @@ module Ridley
     #
     # @return [HostConnector::SSH, HostConnector::WinRM]
     def connector_for(host, options = {})
-      options[:ssh]          ||= Hash.new
-      options[:winrm]        ||= Hash.new
-      options[:ssh][:port]   ||= HostConnector::SSH::DEFAULT_PORT
-      options[:winrm][:port] ||= HostConnector::WinRM::DEFAULT_PORT
-
-      if connector_port_open?(host, options[:winrm][:port])
+      if winrm.connector_port_open?(host, options)
         options.delete(:ssh)
         winrm
-      elsif connector_port_open?(host, options[:ssh][:port], options[:ssh][:timeout])
+      elsif ssh.connector_port_open?(host, options)
         options.delete(:winrm)
         ssh
       else
@@ -196,25 +190,6 @@ module Ridley
         abort(ex)
       rescue Resolv::ResolvError => ex
         abort Errors::DNSResolvError.new(ex)
-      end
-
-      # Checks to see if the given port is open for TCP connections
-      # on the given host.
-      #
-      # @param [String] host
-      #   the host to attempt to connect to
-      # @param [Fixnum] port
-      #   the port to attempt to connect on
-      # @param [Float] wait_time ({PORT_CHECK_TIMEOUT})
-      #   the number of seconds to wait
-      #
-      # @return [Boolean]
-      def connector_port_open?(host, port, wait_time = nil)
-        defer {
-          Timeout.timeout(wait_time || PORT_CHECK_TIMEOUT) { Celluloid::IO::TCPSocket.new(host, port).close; true }
-        }
-      rescue Errno::ETIMEDOUT, Timeout::Error, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL => ex
-        false
       end
 
       def finalize_callback
