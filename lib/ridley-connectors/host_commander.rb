@@ -23,23 +23,10 @@ module Ridley
     include Celluloid
     include Ridley::Logging
 
-    PORT_CHECK_TIMEOUT = 3
-    RETRY_COUNT = 3
-
     DEFAULT_WINDOWS_CONNECTOR = "winrm"
     DEFAULT_LINUX_CONNECTOR = "ssh"
 
     VALID_CONNECTORS = [ DEFAULT_WINDOWS_CONNECTOR, DEFAULT_LINUX_CONNECTOR ]
-
-    CONNECTOR_PORT_ERRORS = [
-      Errno::ETIMEDOUT, Timeout::Error, SocketError, 
-      Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL,
-      Resolv::ResolvError
-    ]
-
-    if Buff::RubyEngine.jruby?
-      CONNECTOR_PORT_ERRORS << Java::JavaNet::ConnectException
-    end
 
     finalizer :finalize_callback
 
@@ -228,6 +215,7 @@ module Ridley
     # @option options [Hash] :ssh
     #   * :port (Fixnum) the ssh port to connect on the node the bootstrap will be performed on (22)
     #   * :timeout (Float) [5.0] timeout value for testing SSH connection
+    #   * :gateway (String) user@host:port
     # @option options [Hash] :winrm
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
     # @option options [String] :connector
@@ -237,12 +225,6 @@ module Ridley
     #
     # @return [HostConnector::SSH, HostConnector::WinRM, NilClass]
     def connector_for(host, options = {})
-      options[:ssh]          ||= Hash.new
-      options[:winrm]        ||= Hash.new
-      options[:ssh][:port]   ||= HostConnector::SSH::DEFAULT_PORT
-      options[:winrm][:port] ||= HostConnector::WinRM::DEFAULT_PORT
-      options[:retries]      ||= RETRY_COUNT
-
       connector = options[:connector]
 
       if !VALID_CONNECTORS.include?(connector)
@@ -250,10 +232,12 @@ module Ridley
         connector = nil
       end
 
-      if (connector == DEFAULT_WINDOWS_CONNECTOR || connector.nil?) && connector_port_open?(host, options[:winrm][:port], options[:winrm][:timeout], options[:retries])
+      if (connector == DEFAULT_WINDOWS_CONNECTOR || connector.nil?) && 
+          winrm.connector_port_open?(host, options)
         options.delete(:ssh)
         winrm
-      elsif (connector == DEFAULT_LINUX_CONNECTOR || connector.nil?) && connector_port_open?(host, options[:ssh][:port], options[:ssh][:timeout], options[:retries])
+      elsif (connector == DEFAULT_LINUX_CONNECTOR || connector.nil?) && 
+          ssh.connector_port_open?(host, options)
         options.delete(:winrm)
         ssh
       else
@@ -284,75 +268,6 @@ module Ridley
         else
           connector.send(method, host, *args, options)
         end
-      end
-
-      # Checks to see if the given port is open for TCP connections
-      # on the given host.
-      #
-      # @param [String] host
-      #   the host to attempt to connect to
-      # @param [Fixnum] port
-      #   the port to attempt to connect on
-      # @param [Float] timeout ({PORT_CHECK_TIMEOUT})
-      #   the number of seconds to wait
-      # @param [Int] retries ({RETRY_COUNT})
-      #   the number of times to retry the connection before counting it unavailable
-      #
-      # @return [Boolean]
-      def connector_port_open?(host, port, timeout = PORT_CHECK_TIMEOUT, retries = RETRY_COUNT)
-        @retry_count = retries
-        begin
-          defer {
-            connectable?(host, port, timeout || PORT_CHECK_TIMEOUT)
-          }
-        rescue *CONNECTOR_PORT_ERRORS => ex
-          @retry_count -= 1
-          if @retry_count > 0
-            log.info { "Retrying connector_port_open? on '#{host}' #{port} due to: #{ex.class}" }
-            retry
-          end
-          false
-        end
-      end
-
-      # Check if a port on a host is able to be connected, failing if the timeout transpires.
-      #
-      # @param [String] host
-      #   the host to attempt to connect to
-      # @param [Fixnum] port
-      #   the port to attempt to connect on
-      # @param [Fixnum] timeout ({PORT_CHECK_TIMEOUT})
-      # 
-      # @return [Boolean]
-      def connectable?(host, port, timeout = PORT_CHECK_TIMEOUT)
-        addr = Socket.getaddrinfo(host, nil)
-        sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
-        socket = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
-        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
-
-        success = false
-        begin
-          socket.connect_nonblock(sockaddr)
-          success = true
-        rescue ::IO::WaitWritable
-          if ::IO.select(nil, [socket], nil, timeout || PORT_CHECK_TIMEOUT)
-            begin
-              socket.connect_nonblock(sockaddr)
-              success = true
-            rescue Errno::EISCONN
-              success = true
-            rescue
-              begin
-                socket.close
-              rescue Errno::EBADF
-                # socket is not open
-              end
-            end
-          else
-            socket.close
-          end
-        end
-        success
       end
 
       def finalize_callback
