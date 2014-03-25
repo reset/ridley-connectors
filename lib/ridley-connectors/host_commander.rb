@@ -3,8 +3,15 @@ module Ridley
     # @param [Celluloid::Registry] registry
     def initialize(registry)
       super(registry)
-      supervise_as :ssh, HostConnector::SSH
-      supervise_as :winrm, HostConnector::WinRM
+
+      conn_pool_size = (ENV['RIDLEY_CONNECTOR_POOL'] || 1).to_i
+      if conn_pool_size > 1
+        pool(HostConnector::SSH, size: conn_pool_size, as: :ssh)
+        pool(HostConnector::WinRM, size: conn_pool_size, as: :winrm)
+      else
+        supervise_as :ssh, HostConnector::SSH
+        supervise_as :winrm, HostConnector::WinRM
+      end
     end
   end
 
