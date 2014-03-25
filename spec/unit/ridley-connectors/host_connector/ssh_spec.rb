@@ -32,7 +32,7 @@ describe Ridley::HostConnector::SSH do
 
   describe "#chef_client" do
     it "sends a #run message to self to execute chef-client" do
-      connector.should_receive(:run).with(host, "chef-client", options)
+      connector.should_receive(:run).with(host, "chef-client -l warn", options)
       connector.chef_client(host, options)
     end
   end
