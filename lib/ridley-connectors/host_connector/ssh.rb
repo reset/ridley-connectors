@@ -113,7 +113,17 @@ module Ridley
       #
       # @return [HostConnector::Response]
       def chef_client(host, options = {})
-        run(host, "chef-client", options)
+        log_level = case log.level
+          when 0
+            "debug"
+          when 1
+            "info"
+          when 2
+            "warn"
+          else
+            "info"
+          end
+        run(host, "chef-client -l #{log_level}", options)
       end
 
       # Write your encrypted data bag secret on a node

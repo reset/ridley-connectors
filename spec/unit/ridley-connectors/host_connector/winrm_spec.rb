@@ -129,7 +129,7 @@ describe Ridley::HostConnector::WinRM do
     subject(:chef_client) { connector.chef_client(host, options) }
 
     it "receives a command to run chef-client" do
-      connector.should_receive(:run).with(host, "chef-client", options)
+      connector.should_receive(:run).with(host, "chef-client -l warn", options)
 
       chef_client
     end
