@@ -1,3 +1,7 @@
+## v.1.6.0
+* [#14](https://github.com/RiotGames/ridley-connectors/pull/14) Create
+  a pool of WinRM / SSH actors, configurable with options(:connector\_pool\_size)
+
 ## v.1.5.0
 * [#11](https://github.com/RiotGames/ridley-connectors/pull/11) use -E on sudo to preserve the environment
 
