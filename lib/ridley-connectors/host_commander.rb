@@ -1,13 +1,12 @@
 module Ridley
   class ConnectorSupervisor < ::Celluloid::SupervisionGroup
     # @param [Celluloid::Registry] registry
-    def initialize(registry)
+    def initialize(registry, connector_pool_size)
       super(registry)
 
-      conn_pool_size = (ENV['RIDLEY_CONNECTOR_POOL'] || 1).to_i
-      if conn_pool_size > 1
-        pool(HostConnector::SSH, size: conn_pool_size, as: :ssh)
-        pool(HostConnector::WinRM, size: conn_pool_size, as: :winrm)
+      if connector_pool_size > 1
+        pool(HostConnector::SSH, size: connector_pool_size, as: :ssh)
+        pool(HostConnector::WinRM, size: connector_pool_size, as: :winrm)
       else
         supervise_as :ssh, HostConnector::SSH
         supervise_as :winrm, HostConnector::WinRM
@@ -23,9 +22,10 @@ module Ridley
 
     finalizer :finalize_callback
 
-    def initialize
+    def initialize(connector_pool_size=nil)
+      connector_pool_size ||= 1
       @connector_registry   = Celluloid::Registry.new
-      @connector_supervisor = ConnectorSupervisor.new_link(@connector_registry)
+      @connector_supervisor = ConnectorSupervisor.new_link(@connector_registry, connector_pool_size)
     end
 
     # Execute a shell command on a node

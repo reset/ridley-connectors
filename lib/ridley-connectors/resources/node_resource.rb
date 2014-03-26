@@ -40,7 +40,7 @@ module Ridley
       @ssh                       = options[:ssh]
       @winrm                     = options[:winrm]
       @chef_version              = options[:chef_version]
-      @host_commander            = HostCommander.new_link
+      @host_commander            = HostCommander.new_link(options[:connector_pool_size])
     end
 
     # @param [String] host
@@ -193,6 +193,6 @@ module Ridley
 
       def finalize_callback
         @host_commander.terminate if @host_commander && @host_commander.alive?
-      end    
+      end
   end
 end
