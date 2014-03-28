@@ -19,6 +19,7 @@ module Ridley
     include Ridley::Logging
 
     PORT_CHECK_TIMEOUT = 3
+    RETRY_COUNT = 3
 
     finalizer :finalize_callback
 
@@ -181,11 +182,12 @@ module Ridley
       options[:winrm]        ||= Hash.new
       options[:ssh][:port]   ||= HostConnector::SSH::DEFAULT_PORT
       options[:winrm][:port] ||= HostConnector::WinRM::DEFAULT_PORT
+      options[:retries]      ||= RETRY_COUNT
 
-      if connector_port_open?(host, options[:winrm][:port])
+      if connector_port_open?(host, options[:winrm][:port], options[:winrm][:timeout], options[:retries])
         options.delete(:ssh)
         winrm
-      elsif connector_port_open?(host, options[:ssh][:port], options[:ssh][:timeout])
+      elsif connector_port_open?(host, options[:ssh][:port], options[:ssh][:timeout], options[:retries])
         options.delete(:winrm)
         ssh
       else
@@ -214,14 +216,21 @@ module Ridley
       #   the port to attempt to connect on
       # @param [Float] wait_time ({PORT_CHECK_TIMEOUT})
       #   the number of seconds to wait
+      # @param [Int] retries ({RETRY_COUNT})
+      #   the number of times to retry the connection before counting it unavailable
       #
       # @return [Boolean]
-      def connector_port_open?(host, port, wait_time = nil)
-        defer {
-          Timeout.timeout(wait_time || PORT_CHECK_TIMEOUT) { Celluloid::IO::TCPSocket.new(host, port).close; true }
-        }
-      rescue Errno::ETIMEDOUT, Timeout::Error, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL => ex
-        false
+      def connector_port_open?(host, port, wait_time = nil, retries = RETRY_COUNT)
+        @retry_count = retries
+        begin
+          defer {
+            Timeout.timeout(wait_time || PORT_CHECK_TIMEOUT) { Celluloid::IO::TCPSocket.new(host, port).close; true }
+          }
+        rescue Errno::ETIMEDOUT, Timeout::Error, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL => ex
+          @retry_count -= 1
+          retry if @retry_count > 0
+          false
+        end
       end
 
       def finalize_callback
