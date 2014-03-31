@@ -1,10 +1,15 @@
+require 'buff/ruby_engine'
+
 module Ridley
   class ConnectorSupervisor < ::Celluloid::SupervisionGroup
+    include Ridley::Logging
+
     # @param [Celluloid::Registry] registry
     def initialize(registry, connector_pool_size)
       super(registry)
 
       if connector_pool_size > 1
+        log.info { "Host ConnectorSupervisor pool starting with size: #{connector_pool_size}" }
         pool(HostConnector::SSH, size: connector_pool_size, as: :ssh)
         pool(HostConnector::WinRM, size: connector_pool_size, as: :winrm)
       else
@@ -20,6 +25,15 @@ module Ridley
 
     PORT_CHECK_TIMEOUT = 3
     RETRY_COUNT = 3
+
+    CONNECTOR_PORT_ERRORS = [
+      Errno::ETIMEDOUT, Timeout::Error, SocketError, 
+      Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL
+    ]
+
+    if Buff::RubyEngine.jruby?
+      CONNECTOR_PORT_ERRORS << Java::JavaNet::ConnectException
+    end
 
     finalizer :finalize_callback
 
@@ -226,7 +240,7 @@ module Ridley
           defer {
             Timeout.timeout(wait_time || PORT_CHECK_TIMEOUT) { Celluloid::IO::TCPSocket.new(host, port).close; true }
           }
-        rescue Errno::ETIMEDOUT, Timeout::Error, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL => ex
+        rescue *CONNECTOR_PORT_ERRORS => ex
           @retry_count -= 1
           retry if @retry_count > 0
           false
