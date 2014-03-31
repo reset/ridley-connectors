@@ -1,10 +1,13 @@
 module Ridley
   class ConnectorSupervisor < ::Celluloid::SupervisionGroup
+    include Ridley::Logging
+
     # @param [Celluloid::Registry] registry
     def initialize(registry, connector_pool_size)
       super(registry)
 
       if connector_pool_size > 1
+        log.info { "Host ConnectorSupervisor pool starting with size: #{connector_pool_size}" }
         pool(HostConnector::SSH, size: connector_pool_size, as: :ssh)
         pool(HostConnector::WinRM, size: connector_pool_size, as: :winrm)
       else
