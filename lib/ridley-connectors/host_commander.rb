@@ -1,3 +1,5 @@
+require 'buff/ruby_engine'
+
 module Ridley
   class ConnectorSupervisor < ::Celluloid::SupervisionGroup
     include Ridley::Logging
@@ -23,6 +25,11 @@ module Ridley
 
     PORT_CHECK_TIMEOUT = 3
     RETRY_COUNT = 3
+    CONNECTOR_PORT_ERRORS = [Errno::ETIMEDOUT, Timeout::Error, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL]
+
+    if Buff::RubyEngine.jruby?
+      CONNECTOR_PORT_ERRORS << Java::JavaNet::ConnectException
+    end
 
     finalizer :finalize_callback
 
@@ -229,7 +236,7 @@ module Ridley
           defer {
             Timeout.timeout(wait_time || PORT_CHECK_TIMEOUT) { Celluloid::IO::TCPSocket.new(host, port).close; true }
           }
-        rescue Errno::ETIMEDOUT, Timeout::Error, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL, Java::JavaNet::ConnectException => ex
+        rescue *CONNECTOR_PORT_ERRORS => ex
           @retry_count -= 1
           retry if @retry_count > 0
           false
