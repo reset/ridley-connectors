@@ -1,3 +1,7 @@
+## v.1.7.1
+
+* [#16](https://github.com/RiotGames/ridley-connectors/pull/16) JRuby throws different exceptions when it can't connect to a node
+
 ## v.1.7.0
 
 * [#15](https://github.com/RiotGames/ridley-connectors/pull/15) Add retries to ssh and winrm connections
