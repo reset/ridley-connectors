@@ -25,7 +25,11 @@ module Ridley
 
     PORT_CHECK_TIMEOUT = 3
     RETRY_COUNT = 3
-    CONNECTOR_PORT_ERRORS = [Errno::ETIMEDOUT, Timeout::Error, SocketError, Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL]
+
+    CONNECTOR_PORT_ERRORS = [
+      Errno::ETIMEDOUT, Timeout::Error, SocketError, 
+      Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL
+    ]
 
     if Buff::RubyEngine.jruby?
       CONNECTOR_PORT_ERRORS << Java::JavaNet::ConnectException
