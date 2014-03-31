@@ -1,3 +1,7 @@
+## v.1.7.0
+
+* [#15](https://github.com/RiotGames/ridley-connectors/pull/15) Add retries to ssh and winrm connections
+
 ## v.1.6.0
 * [#14](https://github.com/RiotGames/ridley-connectors/pull/14) Create
   a pool of WinRM / SSH actors, configurable with options(:connector\_pool\_size)
