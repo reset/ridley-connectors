@@ -2,7 +2,6 @@
 [![Gem Version](https://badge.fury.io/rb/ridley-connectors.png)](http://badge.fury.io/rb/ridley-connectors)
 [![Build Status](https://secure.travis-ci.org/RiotGames/ridley-connectors.png?branch=master)](http://travis-ci.org/RiotGames/ridley-connectors)
 [![Dependency Status](https://gemnasium.com/RiotGames/ridley-connectors.png?travis)](https://gemnasium.com/RiotGames/ridley-connectors)
-[![Code Climate](https://codeclimate.com/github/RiotGames/ridley-connectors.png)](https://codeclimate.com/github/RiotGames/ridley-connectors)
 
 An extension on [Ridley](https://github.com/RiotGames/ridley) adding support for connecting and communicating with nodes in Chef.
 
