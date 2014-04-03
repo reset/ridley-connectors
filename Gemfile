@@ -5,14 +5,14 @@ gemspec
 group :development do
   gem 'yard'
   gem 'spork'
-  gem 'guard', '>= 1.5.0'
-  gem 'guard-yard'
+  gem 'guard', '~> 1.8'
   gem 'guard-rspec'
   gem 'guard-spork', platforms: :ruby
+  gem 'fuubar'
 end
 
 group :test do
-  gem 'rspec', '~> 2.14.0'
+  gem 'rspec'
   gem 'webmock'
   gem 'thor'
 end
