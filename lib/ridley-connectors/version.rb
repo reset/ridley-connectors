@@ -1,5 +1,5 @@
 module Ridley
   module Connectors
-    VERSION = '1.7.1'
+    VERSION = "2.0.0.rc1"
   end
 end
