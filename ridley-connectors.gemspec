@@ -17,11 +17,11 @@ Gem::Specification.new do |s|
   s.version       = Ridley::Connectors::VERSION
   s.required_ruby_version = ">= 1.9.1"
 
-  s.add_dependency 'celluloid', '~> 0.15'
-  s.add_dependency 'celluloid-io', '~> 0.15'
+  s.add_dependency 'celluloid',    '~> 0.16.0.pre'
+  s.add_dependency 'celluloid-io', '~> 0.16.0.pre'
   s.add_dependency 'net-ssh'
-  s.add_dependency 'ridley', '~> 2.5.0'
-  s.add_dependency 'winrm', '~> 1.1.0'
+  s.add_dependency 'ridley',       '~> 3.0.0.rc1'
+  s.add_dependency 'winrm',        '~> 1.1.0'
 
   s.add_development_dependency 'buff-ruby_engine', '~> 0.1'
 end
