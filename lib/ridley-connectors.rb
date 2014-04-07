@@ -3,6 +3,15 @@ require 'celluloid/io'
 require 'ridley'
 
 module Ridley
+
+  class << self
+
+    # @return [Pathname]
+    def scripts
+      root.join('scripts')
+    end
+  end
+
   require_relative 'ridley-connectors/client'
   require_relative 'ridley-connectors/bootstrap_context'
   require_relative 'ridley-connectors/command_context'
