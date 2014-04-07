@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'celluloid',    '~> 0.16.0.pre'
   s.add_dependency 'celluloid-io', '~> 0.16.0.pre'
   s.add_dependency 'net-ssh'
-  s.add_dependency 'ridley',       '~> 3.0.0.rc1'
+  s.add_dependency 'ridley',       '~> 3.0'
   s.add_dependency 'winrm',        '~> 1.1.0'
 
   s.add_development_dependency 'buff-ruby_engine', '~> 0.1'
