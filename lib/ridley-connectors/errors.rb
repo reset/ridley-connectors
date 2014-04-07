@@ -1,6 +1,5 @@
 module Ridley
   module Errors
-
     module ConnectorsError; end
 
     class HostConnectionError < RidleyError
@@ -26,6 +25,5 @@ module Ridley
         "No command provided in #{connector_type.inspect}, however the #{connector_type.inspect} connector was selected."
       end
     end
-
   end
 end
