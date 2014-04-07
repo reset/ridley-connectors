@@ -5,8 +5,8 @@ describe Ridley::BootstrapContext::Unix do
     {
       server_url: "https://api.opscode.com/organizations/vialstudios",
       validator_client: "chef-validator",
-      validator_path: fixtures_path.join("reset.pem").to_s,
-      encrypted_data_bag_secret: File.read(fixtures_path.join("reset.pem"))
+      validator_path: fixtures_path.join("my-fake.pem").to_s,
+      encrypted_data_bag_secret: File.read(fixtures_path.join("my-fake.pem"))
     }
   end
 
