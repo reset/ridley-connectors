@@ -28,7 +28,8 @@ module Ridley
 
     CONNECTOR_PORT_ERRORS = [
       Errno::ETIMEDOUT, Timeout::Error, SocketError, 
-      Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL
+      Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL,
+      Resolv::ResolvError
     ]
 
     if Buff::RubyEngine.jruby?
