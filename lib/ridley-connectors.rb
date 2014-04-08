@@ -4,11 +4,18 @@ require 'ridley'
 
 module Ridley
 
-  class << self
+  module Connectors
+    class << self
 
-    # @return [Pathname]
-    def scripts
-      root.join('scripts')
+      # @return [Pathname]
+      def root
+        @root ||= Pathname.new(File.expand_path('../', File.dirname(__FILE__)))
+      end
+
+      # @return [Pathname]
+      def scripts
+        root.join('scripts')
+      end
     end
   end
 

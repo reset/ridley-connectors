@@ -28,7 +28,7 @@ module Ridley
         # @return [Pathname]
         def template_file(filename = nil)
           return @template_file if filename.nil?
-          @template_file = Ridley.scripts.join("#{filename}.erb")
+          @template_file = Ridley::Connectors.scripts.join("#{filename}.erb")
         end
       end
 
