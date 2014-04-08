@@ -66,24 +66,12 @@ module Ridley
       execute(__method__, host, command, options)
     end
 
-    # Bootstrap a node
-    #
-    # @param [String] host
-    #   the host to perform the action on
-    #
-    # @option options [Hash] :ssh
-    #   * :user (String) a shell user that will login to each node and perform the bootstrap command on
-    #   * :password (String) the password for the shell user that will perform the bootstrap
-    #   * :keys (Array, String) an array of key(s) to authenticate the ssh user with instead of a password
-    #   * :timeout (Float) timeout value for SSH bootstrap (5.0)
-    #   * :sudo (Boolean) run as sudo
-    # @option options [Hash] :winrm
-    #   * :user (String) a user that will login to each node and perform the bootstrap command on
-    #   * :password (String) the password for the user that will perform the bootstrap (required)
-    #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
-    #
-    # @return [HostConnector::Response]
-    def bootstrap(host, options = {})
+    def full_bootstrap(host, options = {})
+      execute(__method__, host, options)
+    end
+    alias_method :bootstrap, :full_bootstrap
+
+    def partial_bootstrap(host, options = {})
       execute(__method__, host, options)
     end
 

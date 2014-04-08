@@ -88,7 +88,13 @@ module Ridley
         chef_version: chef_version
       )
 
-      host_commander.bootstrap(host, options)
+      node_name = registered_as(host)
+
+      if !node_name.nil?
+        host_commander.partial_bootstrap(host, options)
+      else
+        host_commander.full_bootstrap(host, options)
+      end
     end
 
     # Executes a Chef run using the best worker available for the given
@@ -135,6 +141,21 @@ module Ridley
       host_commander.run(host, command, ssh: ssh, winrm: winrm)
     end
     alias_method :execute_command, :run
+
+    def registered_as(host)
+      lines   = File.readlines(Ridley::Connectors.scripts.join("node_name.rb"))
+      command_lines = lines.collect { |line| line.gsub('"', "'").strip.chomp }
+      response = ruby_script(host, command_lines)
+
+      if response.error?
+        # not sure yet...
+        return nil
+      end
+      if (client_id = response.stdout.chomp).nil?
+        return nil
+      end
+      client_id
+    end
 
     # Executes the given command on a node using a platform specific
     # command.

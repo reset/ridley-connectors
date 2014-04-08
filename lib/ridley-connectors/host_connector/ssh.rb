@@ -76,27 +76,25 @@ module Ridley
         end
       end
 
-      # Bootstrap a node
-      #
-      # @param [String] host
-      #   the host to perform the action on
-      #
-      # @option options [Hash] :ssh
-      #   * :user (String) a shell user that will login to each node and perform the bootstrap command on
-      #   * :password (String) the password for the shell user that will perform the bootstrap
-      #   * :keys (Array, String) an array of key(s) to authenticate the ssh user with instead of a password
-      #   * :timeout (Float) timeout value for SSH bootstrap (5.0)
-      #   * :sudo (Boolean) run as sudo
-      #
-      # @return [HostConnector::Response]
-      def bootstrap(host, options = {})
+      def full_bootstrap(host, options = {})
         options = options.reverse_merge(ssh: Hash.new)
         options[:ssh].reverse_merge!(sudo: true, timeout: 5.0)
         context = BootstrapContext::Unix.new(options)
 
         log.info "Bootstrapping host: #{host}"
         log.filter_param(context.boot_command)
+
         run(host, context.boot_command, options)
+      end
+      alias_method :bootstrap, :full_bootstrap
+
+      def partial_bootstrap(host, options = {})
+        options = options.reverse_merge(ssh: Hash.new)
+        options[:ssh].reverse_merge!(sudo: true, timeout: 5.0)
+
+        log.info "#{host} is already registered with Chef. Performing a partial bootstrap."
+        put_secret(host, options[:encrypted_data_bag_secret], options)
+        chef_client(host, options)
       end
 
       # Perform a chef client run on a node
