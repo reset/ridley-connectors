@@ -91,6 +91,7 @@ module Ridley
       node_name = registered_as(host)
 
       if !node_name.nil?
+        merge_data(node_name, options.slice(:run_list, :attributes))
         host_commander.partial_bootstrap(host, options)
       else
         host_commander.full_bootstrap(host, options)
