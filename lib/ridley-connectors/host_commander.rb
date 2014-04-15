@@ -243,7 +243,10 @@ module Ridley
           }
         rescue *CONNECTOR_PORT_ERRORS => ex
           @retry_count -= 1
-          retry if @retry_count > 0
+          if @retry_count > 0
+            log.warn { "Retrying connector_port_open? on #{host} #{port}" } if @retry_count > 0
+            retry
+          end
           false
         end
       end
