@@ -167,6 +167,29 @@ describe Ridley::HostCommander do
   end
 
   describe "#connector_for" do
+
+    context "when connector_port_open? experiences an error" do
+      let(:socket) { double(close: true) }
+
+
+      before do
+        @times_called = 0
+        Celluloid::IO::TCPSocket.stub(:new).and_return do
+          @times_called += 1
+          if @times_called == 1
+            raise Errno::ETIMEDOUT
+          else
+            socket
+          end
+        end
+      end
+
+      it "executes retry logic", focus: true do
+        expect(Celluloid::IO::TCPSocket).to receive(:new).twice
+        subject.connector_for(host)
+      end
+    end
+
     it "should return winrm if winrm is open" do
       subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT, anything, anything).and_return(true)
       subject.should_receive(:winrm)

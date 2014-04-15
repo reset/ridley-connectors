@@ -26,7 +26,7 @@ describe Ridley::Client do
 
       it "assigns a 'winrm' attribute from the given 'winrm' option" do
         described_class.new(config).winrm.should eql({user: "fake", password: "password2", port: "5986"})
-      end      
+      end
     end
   end
 end
