@@ -21,29 +21,6 @@ describe Ridley::HostConnector::WinRM do
     ::WinRM::WinRMWebService.stub(:new).and_return(double(:set_timeout => nil, :run_cmd => {exitcode: 0}))
   end
 
-  describe "#get_command" do
-    subject(:get_command) { connector.get_command(command, command_uploader_stub) }
-
-    let(:command) { "echo %TEMP%" }
-    let(:command_uploader_stub) { double('CommandUploader') }
-
-    it { should eq(command) }
-
-    context "when a command is more than 2047 characters" do
-      let(:command) { "a" * 2048 }
-
-      it "uploads and returns a command" do
-        described_class::CommandUploader.stub(new: command_uploader_stub)
-
-        command_uploader_stub.should_receive :upload
-        command_uploader_stub.stub command: "my command"
-        command_uploader_stub.stub(:cleanup)
-
-        get_command.should eq("my command")
-      end
-    end
-  end
-
   describe "#run" do
     subject(:result) { connector.run(host, command, options) }
     let(:command) { "dir" }
@@ -56,6 +33,37 @@ describe Ridley::HostConnector::WinRM do
       described_class::CommandUploader.stub(:new).and_return(command_uploader_stub)
       connector.stub(:winrm).and_return(winrm_stub)
       winrm_stub.stub(:run_cmd).and_yield(stdout, stderr).and_return(exitcode: 0)
+    end
+
+    context "when the command is forced" do
+      let(:command_uploader) { double(upload: nil, command: command, cleanup: true) }
+      let(:command) { "a forced-to-upload command" }
+      let(:options) do
+        { force_batch_file: true }
+      end
+
+      before do
+        Ridley::HostConnector::WinRM::CommandUploader.stub(:new).and_return(command_uploader)
+      end
+
+      it "uploads the command" do
+        expect(winrm_stub).to receive(:run_cmd).with("a forced-to-upload command")
+        result
+      end
+    end
+
+    context "when the command is too long" do
+      let(:command_uploader) { double(upload: nil, command: command, cleanup: true) }
+      let(:command) { "a" * 2048 }
+
+      before do
+        Ridley::HostConnector::WinRM::CommandUploader.stub(:new).and_return(command_uploader)
+      end
+
+      it "uploads the command" do
+        expect(winrm_stub).to receive(:run_cmd).with("a" * 2048)
+        result
+      end
     end
 
     context "when the exit_code is 0" do

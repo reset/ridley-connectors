@@ -50,8 +50,13 @@ module Ridley
 
         HostConnector::Response.new(host).tap do |response|
           begin
-            command_uploaders << command_uploader = CommandUploader.new(connection)
-            command = get_command(command, command_uploader, force_batch_file: options[:force_batch_file])
+            if options[:force_batch_file] || command.length > CommandUploader::CHUNK_LIMIT
+              log.debug "Detected a command that was longer than #{CommandUploader::CHUNK_LIMIT} characters. " +
+                "Uploading command as a file to the host."
+              command_uploaders << command_uploader = CommandUploader.new(connection)
+              command_uploader.upload(command)
+              command = command_uploader.command
+            end
 
             log.info "Running WinRM command: '#{command}' on: '#{host}' as: '#{user}'"
 
@@ -88,27 +93,6 @@ module Ridley
           command_uploaders.map(&:cleanup)
         rescue ::WinRM::WinRMHTTPTransportError => ex
           log.info "Error cleaning up leftover Powershell scripts on some hosts"
-        end
-      end
-
-      # Returns the command if it does not break the WinRM command length
-      # limit. Otherwise, we return an execution of the command as a batch file.
-      #
-      # @param  command [String]
-      # @param  options [Hash]
-      #
-      # @option options [TrueClass, FalseClass] :force_batch_file
-      #   Always use a batch file to run the command regardless of command length.
-      #
-      # @return [String]
-      def get_command(command, command_uploader, options = {})
-        if !options[:force_batch_file] && command.length < CommandUploader::CHUNK_LIMIT
-          command
-        else
-          log.debug "Detected a command that was longer than #{CommandUploader::CHUNK_LIMIT} characters. " +
-            "Uploading command as a file to the host."
-          command_uploader.upload(command)
-          command_uploader.command
         end
       end
 
