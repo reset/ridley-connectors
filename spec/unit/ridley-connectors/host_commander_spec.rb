@@ -184,7 +184,7 @@ describe Ridley::HostCommander do
         end
       end
 
-      it "executes retry logic", focus: true do
+      it "executes retry logic" do
         expect(Celluloid::IO::TCPSocket).to receive(:new).twice
         subject.connector_for(host)
       end
