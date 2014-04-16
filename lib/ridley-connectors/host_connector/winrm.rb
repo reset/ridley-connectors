@@ -77,6 +77,12 @@ module Ridley
           rescue ::WinRM::WinRMHTTPTransportError => ex
             response.exit_code = :transport_error
             response.stderr    = ex.message
+          rescue SocketError, Errno::EHOSTUNREACH
+            response.exit_code = -1
+            response.stderr    = "Host unreachable"
+          rescue Errno::ECONNREFUSED
+            response.exit_code = -1
+            response.stderr    = "Connection refused"
           end
 
           case response.exit_code
@@ -84,6 +90,8 @@ module Ridley
             log.info "Successfully ran WinRM command on: '#{host}' as: '#{user}'"
           when :transport_error
             log.info "A transport error occured while attempting to run a WinRM command on: '#{host}' as: '#{user}'"
+          when -1
+            log.info "Failed to run WinRM command on: '#{host}' as: '#{user}'"
           else
             log.info "Successfully ran WinRM command on: '#{host}' as: '#{user}', but it failed"
           end
@@ -91,7 +99,7 @@ module Ridley
       ensure
         begin
           command_uploaders.map(&:cleanup)
-        rescue ::WinRM::WinRMHTTPTransportError => ex
+        rescue ::WinRM::WinRMHTTPTransportError, SocketError, Errno::EHOSTUNREACH, Errno::ECONNREFUSED
           log.info "Error cleaning up leftover Powershell scripts on some hosts"
         end
       end
