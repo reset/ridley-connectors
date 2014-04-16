@@ -15,6 +15,7 @@ def setup_rspec
       WebMock.disable_net_connect!(allow_localhost: true, net_http_connect_on_start: true)
     end
 
+    config.filter_run focus: true
     config.before(:all) { Ridley.logger = Celluloid.logger = nil }
 
     config.before(:each) do
