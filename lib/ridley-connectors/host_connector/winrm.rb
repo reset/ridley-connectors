@@ -99,8 +99,9 @@ module Ridley
       ensure
         begin
           command_uploaders.map(&:cleanup)
-        rescue ::WinRM::WinRMHTTPTransportError, SocketError, Errno::EHOSTUNREACH, Errno::ECONNREFUSED
-          log.info "Error cleaning up leftover Powershell scripts on some hosts"
+        rescue ::WinRM::WinRMHTTPTransportError, SocketError, Errno::EHOSTUNREACH, Errno::ECONNREFUSED => ex
+          log.info "Error cleaning up leftover Powershell scripts on some hosts due to: " +
+            "#{ex.class} - #{ex.message}"
         end
       end
 
