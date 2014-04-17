@@ -1,3 +1,13 @@
+## v.2.0.1
+
+* [#18](https://github.com/RiotGames/ridley-connectors/pull/18) Move more connector-specific code out of ridley and into ridley-connectors
+* [#19](https://github.com/RiotGames/ridley-connectors/pull/19) Add some extra logging to retrying connections to choose an appropriate connector
+* [#20](https://github.com/RiotGames/ridley-connectors/pull/20) Handle HostCommander, WinRM, and SSH actor crashes better
+
+## v.2.0.0
+
+* [#17](https://github.com/RiotGames/ridley-connectors/pull/17) Bump ridley dependency to 3.0.0
+
 ## v.1.7.1
 
 * [#16](https://github.com/RiotGames/ridley-connectors/pull/16) JRuby throws different exceptions when it can't connect to a node
