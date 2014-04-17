@@ -83,6 +83,9 @@ module Ridley
           rescue Errno::ECONNREFUSED
             response.exit_code = -1
             response.stderr    = "Connection refused"
+          rescue => ex
+            response.exit_code = -1
+            response.stderr    = "An unknown error occurred: #{ex.class} - #{ex.message}"
           end
 
           case response.exit_code
