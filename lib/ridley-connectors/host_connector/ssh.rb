@@ -63,6 +63,9 @@ module Ridley
           rescue Net::SSH::Exception => ex
             response.exit_code = -1
             response.stderr    = ex.inspect
+          rescue => ex
+            response.exit_code = -1
+            response.stderr    = "An unknown error occurred: #{ex.class} - #{ex.message}"
           end
 
           case response.exit_code

@@ -191,7 +191,7 @@ module Ridley
     # @param block [Proc]
     #   an optional block that is yielded the best HostConnector
     #
-    # @return [HostConnector::SSH, HostConnector::WinRM]
+    # @return [HostConnector::SSH, HostConnector::WinRM, NilClass]
     def connector_for(host, options = {})
       options[:ssh]          ||= Hash.new
       options[:winrm]        ||= Hash.new
@@ -206,20 +206,33 @@ module Ridley
         options.delete(:winrm)
         ssh
       else
-        raise Errors::HostConnectionError, "No connector ports open on '#{host}'"
+        nil
       end
     end
 
     private
 
+      # A helper method for sending the provided method to a proper
+      # connector actor.
+      #
+      # @param [Symbol] method
+      #   the method to call on the connector actor
+      # @param [String] host
+      #   the host to connect to
+      # @param [Array] args
+      #   the splatted args passed to the method
+      #
+      # @return [HostConnector::Response]
       def execute(method, host, *args)
         options = args.last.is_a?(Hash) ? args.pop : Hash.new
 
-        connector_for(host, options).send(method, host, *args, options)
-      rescue Errors::HostConnectionError => ex
-        abort(ex)
-      rescue Resolv::ResolvError => ex
-        abort Errors::DNSResolvError.new(ex)
+        connector = connector_for(host, options)
+        if connector.nil?
+          log.warn { "No connector ports open on '#{host}'" }
+          HostConnector::Response.new(host, stderr: "No connector ports open on '#{host}'")
+        else
+          connector.send(method, host, *args, options)
+        end
       end
 
       # Checks to see if the given port is open for TCP connections
@@ -244,7 +257,7 @@ module Ridley
         rescue *CONNECTOR_PORT_ERRORS => ex
           @retry_count -= 1
           if @retry_count > 0
-            log.info { "Retrying connector_port_open? on #{host} #{port}" }
+            log.info { "Retrying connector_port_open? on '#{host}' #{port} due to: #{ex.class}" }
             retry
           end
           false
