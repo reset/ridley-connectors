@@ -3,10 +3,23 @@ require 'celluloid/io'
 require 'ridley'
 
 module Ridley
-  class << self
-    # @return [Pathname]
-    def scripts
-      root.join('scripts')
+  module Connectors
+    class << self
+
+      # @return [Pathname]
+      def root
+        @root ||= Pathname.new(File.expand_path('../', File.dirname(__FILE__)))
+      end
+
+      # @return [Pathname]
+      def scripts
+        root.join('scripts')
+      end
+
+      # @return [Pathname]
+      def bootstrappers
+        root.join('bootstrappers')
+      end
     end
   end
 
