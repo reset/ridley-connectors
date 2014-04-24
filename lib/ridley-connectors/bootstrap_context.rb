@@ -68,7 +68,7 @@ module Ridley
 
       # @return [Pathname]
       def templates_path
-        Ridley.root.join('bootstrappers')
+        Ridley::Connectors.bootstrappers
       end
 
       # @return [String]
