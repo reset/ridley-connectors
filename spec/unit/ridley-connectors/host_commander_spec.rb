@@ -166,7 +166,7 @@ describe Ridley::HostCommander do
     end
   end
 
-  describe "#connector_for", focus: true do
+  describe "#connector_for" do
 
     context "when connector_port_open? experiences an error" do
       let(:socket) { double(close: true) }

@@ -11,9 +11,11 @@ describe Ridley::NodeResource do
       encrypted_data_bag_secret: double('encrypted_data_bag_secret'),
       ssh: double('ssh'),
       winrm: double('winrm'),
-      chef_version: double('chef_version')
+      chef_version: double('chef_version'),
+      hint: nil
     }
   end
+
   let(:instance) do
     inst = described_class.new(double, options)
     inst.stub(host_commander: host_commander)
@@ -21,21 +23,23 @@ describe Ridley::NodeResource do
   end
 
   describe "#bootstrap" do
+    let(:bootstrap_options) { options.delete(:hint); options }
+
     it "sends the message #bootstrap to the instance's host_commander" do
-      host_commander.should_receive(:bootstrap).with(host, options)
+      host_commander.should_receive(:bootstrap).with(host, bootstrap_options)
       instance.bootstrap(host)
     end
 
     it "passes pre-configured options to #bootstrap" do
-      host_commander.should_receive(:bootstrap).with(host, options)
+      host_commander.should_receive(:bootstrap).with(host, bootstrap_options)
       instance.bootstrap(host)
     end
   end
 
   describe "#chef_run" do
     it "sends the message #chef_client to the instance's host_commander" do
-      host_commander.should_receive(:chef_client).with(host, ssh: instance.ssh, winrm: instance.winrm)
-      instance.chef_run(host)
+      host_commander.should_receive(:chef_client).with(host, ssh: instance.ssh, winrm: instance.winrm, hint: nil)
+      instance.chef_run(host, options)
     end
   end
 
@@ -43,8 +47,8 @@ describe Ridley::NodeResource do
     let(:secret) { options[:encrypted_data_bag_secret] }
 
     it "sends the message #put_secret to the instance's host_commander" do
-      host_commander.should_receive(:put_secret).with(host, secret, options.slice(:ssh, :winrm))
-      instance.put_secret(host)
+      host_commander.should_receive(:put_secret).with(host, secret, options.slice(:ssh, :winrm, :hint))
+      instance.put_secret(host, options)
     end
   end
 
@@ -52,8 +56,8 @@ describe Ridley::NodeResource do
     let(:command_lines) { ["puts 'hello'", "puts 'there'"] }
 
     it "sends the message #ruby_script to the instance's host_commander" do
-      host_commander.should_receive(:ruby_script).with(host, command_lines, ssh: instance.ssh, winrm: instance.winrm)
-      instance.ruby_script(host, command_lines)
+      host_commander.should_receive(:ruby_script).with(host, command_lines, ssh: instance.ssh, winrm: instance.winrm, hint: nil)
+      instance.ruby_script(host, command_lines, options)
     end
   end
 
@@ -61,8 +65,8 @@ describe Ridley::NodeResource do
     let(:command) { "echo 'hello winrm_connectorld'" }
 
     it "sends the message #run to the instance's host_commander" do
-      host_commander.should_receive(:run).with(host, command, ssh: instance.ssh, winrm: instance.winrm)
-      instance.run(host, command)
+      host_commander.should_receive(:run).with(host, command, ssh: instance.ssh, winrm: instance.winrm, hint: nil)
+      instance.run(host, command, options)
     end
   end
 
