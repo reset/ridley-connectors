@@ -199,10 +199,12 @@ module Ridley
       options[:winrm][:port] ||= HostConnector::WinRM::DEFAULT_PORT
       options[:retries]      ||= RETRY_COUNT
 
-      if connector_port_open?(host, options[:winrm][:port], options[:winrm][:timeout], options[:retries])
+      hint = options[:hint]
+
+      if (hint == "windows" || hint.nil?) && connector_port_open?(host, options[:winrm][:port], options[:winrm][:timeout], options[:retries])
         options.delete(:ssh)
         winrm
-      elsif connector_port_open?(host, options[:ssh][:port], options[:ssh][:timeout], options[:retries])
+      elsif (hint == "linux" || hint.nil?) && connector_port_open?(host, options[:ssh][:port], options[:ssh][:timeout], options[:retries])
         options.delete(:winrm)
         ssh
       else
