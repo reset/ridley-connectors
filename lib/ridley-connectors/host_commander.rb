@@ -252,7 +252,21 @@ module Ridley
         @retry_count = retries
         begin
           defer {
-            Timeout.timeout(wait_time || PORT_CHECK_TIMEOUT) { Celluloid::IO::TCPSocket.new(host, port).close; true }
+            socket_thread = nil
+            control_thread = Thread.new {
+              NIO::Selector.new.select(3)
+              socket_thread.kill if socket_thread.alive?
+            }
+            socket_thread = Thread.new {
+              Celluloid::IO::TCPSocket.new(host, port) rescue nil
+              control_thread.kill if control_thread.alive?
+            }
+
+            while socket_thread.alive?
+              return false unless control_thread.alive?
+              NIO::Selector.new.select(0.1)
+            end
+            return true
           }
         rescue *CONNECTOR_PORT_ERRORS => ex
           @retry_count -= 1
