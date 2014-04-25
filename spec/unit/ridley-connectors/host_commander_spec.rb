@@ -209,9 +209,9 @@ describe Ridley::HostCommander do
       subject.connector_for(host, winrm: nil, ssh: nil)
     end
 
-    context "when a hint of windows is given" do
+    context "when a connector of winrm is given" do
       let(:options) do
-        { ssh: { port: 22, timeout: 3 }, winrm: { port: 5985, timeout: 3 }, retries: 3, hint: "windows" }
+        { ssh: { port: 22, timeout: 3 }, winrm: { port: 5985, timeout: 3 }, retries: 3, connector: "winrm" }
       end
       let(:winrm) { double }
 
@@ -227,9 +227,9 @@ describe Ridley::HostCommander do
       end
     end
 
-    context "when a hint of linux is given" do
+    context "when a connector of ssh is given" do
       let(:options) do
-        { ssh: { port: 22, timeout: 3 }, winrm: { port: 5985, timeout: 3 }, retries: 3, hint: "linux" }
+        { ssh: { port: 22, timeout: 3 }, winrm: { port: 5985, timeout: 3 }, retries: 3, connector: "ssh" }
       end
       let(:ssh) { double }
 

@@ -95,12 +95,12 @@ module Ridley
     # host.
     #
     # @param [String] host
-    # @option options [String] :hint
-    #   a hint used to find the best connector type
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def chef_run(host, options = {})
-      host_commander.chef_client(host, ssh: ssh, winrm: winrm, hint: options[:hint])
+      host_commander.chef_client(host, ssh: ssh, winrm: winrm, connector: options[:connector])
     rescue Errors::HostConnectionError => ex
       abort(ex)
     end
@@ -109,12 +109,12 @@ module Ridley
     # the given host.
     #
     # @param [String] host
-    # @option options [String] :hint
-    #   a hint used to find the best connector type
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def put_secret(host, options = {})
-      host_commander.put_secret(host, encrypted_data_bag_secret, ssh: ssh, winrm: winrm, hint: options[:hint])
+      host_commander.put_secret(host, encrypted_data_bag_secret, ssh: ssh, winrm: winrm, connector: options[:connector])
     end
 
     # Executes an arbitrary ruby script using the best worker available
@@ -122,12 +122,12 @@ module Ridley
     #
     # @param [String] host
     # @param [Array<String>] command_lines
-    # @option options [String] :hint
-    #   a hint used to find the best connector type    
+    # @option options [String] :connector
+    #   a connectory type to prefer    
     #
     # @return [HostConnector::Response]
     def ruby_script(host, command_lines, options = {})
-      host_commander.ruby_script(host, command_lines, ssh: ssh, winrm: winrm, hint: options[:hint])
+      host_commander.ruby_script(host, command_lines, ssh: ssh, winrm: winrm, connector: options[:connector])
     end
 
     # Executes the given command on a node using the best worker
@@ -138,7 +138,7 @@ module Ridley
     #
     # @return [HostConnector::Response]
     def run(host, command, options = {})
-      host_commander.run(host, command, ssh: ssh, winrm: winrm, hint: options[:hint])
+      host_commander.run(host, command, ssh: ssh, winrm: winrm, connector: options[:connector])
     end
     alias_method :execute_command, :run
 

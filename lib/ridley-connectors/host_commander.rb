@@ -26,6 +26,9 @@ module Ridley
     PORT_CHECK_TIMEOUT = 3
     RETRY_COUNT = 3
 
+    DEFAULT_WINDOWS_CONNECTOR = "winrm"
+    DEFAULT_LINUX_CONNECTOR = "ssh"
+
     CONNECTOR_PORT_ERRORS = [
       Errno::ETIMEDOUT, Timeout::Error, SocketError, 
       Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL,
@@ -60,8 +63,8 @@ module Ridley
     #   * :user (String) a user that will login to each node and perform the bootstrap command on
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
-    # @option options [String] :hint
-    #   a hint used to find the best connector type
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def run(host, command, options = {})
@@ -104,8 +107,8 @@ module Ridley
     #   * :user (String) a user that will login to each node and perform the bootstrap command on
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
-    # @option options [String] :hint
-    #   a hint used to find the best connector type
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def chef_client(host, options = {})
@@ -129,8 +132,8 @@ module Ridley
     #   * :user (String) a user that will login to each node and perform the bootstrap command on
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
-    # @option options [String] :hint
-    #   a hint used to find the best connector type
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def put_secret(host, secret, options = {})
@@ -154,8 +157,8 @@ module Ridley
     #   * :user (String) a user that will login to each node and perform the bootstrap command on
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
-    # @option options [String] :hint
-    #   a hint used to find the best connector type
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def ruby_script(host, command_lines, options = {})
@@ -181,8 +184,8 @@ module Ridley
     #   * :user (String) a user that will login to each node and perform the bootstrap command on
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
-    # @option options [String] :hint
-    #   a hint used to find the best connector type
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def uninstall_chef(host, options = {})
@@ -198,8 +201,8 @@ module Ridley
     #   * :timeout (Float) [5.0] timeout value for testing SSH connection
     # @option options [Hash] :winrm
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
-    # @option options [String] :hint
-    #   a hint used to find the best connector type
+    # @option options [String] :connector
+    #   a connectory type to prefer
     # @param block [Proc]
     #   an optional block that is yielded the best HostConnector
     #
@@ -211,12 +214,12 @@ module Ridley
       options[:winrm][:port] ||= HostConnector::WinRM::DEFAULT_PORT
       options[:retries]      ||= RETRY_COUNT
 
-      hint = options[:hint]
+      connector = options[:connector]
 
-      if (hint == "windows" || hint.nil?) && connector_port_open?(host, options[:winrm][:port], options[:winrm][:timeout], options[:retries])
+      if (connector == DEFAULT_WINDOWS_CONNECTOR || connector.nil?) && connector_port_open?(host, options[:winrm][:port], options[:winrm][:timeout], options[:retries])
         options.delete(:ssh)
         winrm
-      elsif (hint == "linux" || hint.nil?) && connector_port_open?(host, options[:ssh][:port], options[:ssh][:timeout], options[:retries])
+      elsif (connector == DEFAULT_LINUX_CONNECTOR || connector.nil?) && connector_port_open?(host, options[:ssh][:port], options[:ssh][:timeout], options[:retries])
         options.delete(:winrm)
         ssh
       else

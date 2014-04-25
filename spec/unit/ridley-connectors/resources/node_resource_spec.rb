@@ -12,7 +12,7 @@ describe Ridley::NodeResource do
       ssh: double('ssh'),
       winrm: double('winrm'),
       chef_version: double('chef_version'),
-      hint: nil
+      connector: nil
     }
   end
 
@@ -23,7 +23,7 @@ describe Ridley::NodeResource do
   end
 
   describe "#bootstrap" do
-    let(:bootstrap_options) { options.delete(:hint); options }
+    let(:bootstrap_options) { options.delete(:connector); options }
 
     it "sends the message #bootstrap to the instance's host_commander" do
       host_commander.should_receive(:bootstrap).with(host, bootstrap_options)
@@ -38,7 +38,7 @@ describe Ridley::NodeResource do
 
   describe "#chef_run" do
     it "sends the message #chef_client to the instance's host_commander" do
-      host_commander.should_receive(:chef_client).with(host, ssh: instance.ssh, winrm: instance.winrm, hint: nil)
+      host_commander.should_receive(:chef_client).with(host, ssh: instance.ssh, winrm: instance.winrm, connector: nil)
       instance.chef_run(host, options)
     end
   end
@@ -47,7 +47,7 @@ describe Ridley::NodeResource do
     let(:secret) { options[:encrypted_data_bag_secret] }
 
     it "sends the message #put_secret to the instance's host_commander" do
-      host_commander.should_receive(:put_secret).with(host, secret, options.slice(:ssh, :winrm, :hint))
+      host_commander.should_receive(:put_secret).with(host, secret, options.slice(:ssh, :winrm, :connector))
       instance.put_secret(host, options)
     end
   end
@@ -56,7 +56,7 @@ describe Ridley::NodeResource do
     let(:command_lines) { ["puts 'hello'", "puts 'there'"] }
 
     it "sends the message #ruby_script to the instance's host_commander" do
-      host_commander.should_receive(:ruby_script).with(host, command_lines, ssh: instance.ssh, winrm: instance.winrm, hint: nil)
+      host_commander.should_receive(:ruby_script).with(host, command_lines, ssh: instance.ssh, winrm: instance.winrm, connector: nil)
       instance.ruby_script(host, command_lines, options)
     end
   end
@@ -65,7 +65,7 @@ describe Ridley::NodeResource do
     let(:command) { "echo 'hello winrm_connectorld'" }
 
     it "sends the message #run to the instance's host_commander" do
-      host_commander.should_receive(:run).with(host, command, ssh: instance.ssh, winrm: instance.winrm, hint: nil)
+      host_commander.should_receive(:run).with(host, command, ssh: instance.ssh, winrm: instance.winrm, connector: nil)
       instance.run(host, command, options)
     end
   end
