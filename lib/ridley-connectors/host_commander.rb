@@ -64,7 +64,7 @@ module Ridley
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
     # @option options [String] :connector
-    #   a connectory type to prefer
+    #   a connector type to prefer
     #
     # @return [HostConnector::Response]
     def run(host, command, options = {})
@@ -108,7 +108,7 @@ module Ridley
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
     # @option options [String] :connector
-    #   a connectory type to prefer
+    #   a connector type to prefer
     #
     # @return [HostConnector::Response]
     def chef_client(host, options = {})
@@ -133,7 +133,7 @@ module Ridley
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
     # @option options [String] :connector
-    #   a connectory type to prefer
+    #   a connector type to prefer
     #
     # @return [HostConnector::Response]
     def put_secret(host, secret, options = {})
@@ -158,7 +158,7 @@ module Ridley
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
     # @option options [String] :connector
-    #   a connectory type to prefer
+    #   a connector type to prefer
     #
     # @return [HostConnector::Response]
     def ruby_script(host, command_lines, options = {})
@@ -185,7 +185,7 @@ module Ridley
     #   * :password (String) the password for the user that will perform the bootstrap (required)
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
     # @option options [String] :connector
-    #   a connectory type to prefer
+    #   a connector type to prefer
     #
     # @return [HostConnector::Response]
     def uninstall_chef(host, options = {})
@@ -202,7 +202,7 @@ module Ridley
     # @option options [Hash] :winrm
     #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
     # @option options [String] :connector
-    #   a connectory type to prefer
+    #   a connector type to prefer
     # @param block [Proc]
     #   an optional block that is yielded the best HostConnector
     #
