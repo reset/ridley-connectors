@@ -273,6 +273,7 @@ module Ridley
               if not control_thread.alive?
                 success = false
               end
+              # Prevent busy waiting from pegging a CPU core at 100%
               NIO::Selector.new.select(0.1)
             end
           }
