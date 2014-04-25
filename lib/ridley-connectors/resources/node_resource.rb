@@ -95,10 +95,12 @@ module Ridley
     # host.
     #
     # @param [String] host
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
-    def chef_run(host)
-      host_commander.chef_client(host, ssh: ssh, winrm: winrm)
+    def chef_run(host, options = {})
+      host_commander.chef_client(host, ssh: ssh, winrm: winrm, connector: options[:connector])
     rescue Errors::HostConnectionError => ex
       abort(ex)
     end
@@ -107,10 +109,12 @@ module Ridley
     # the given host.
     #
     # @param [String] host
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
-    def put_secret(host)
-      host_commander.put_secret(host, encrypted_data_bag_secret, ssh: ssh, winrm: winrm)
+    def put_secret(host, options = {})
+      host_commander.put_secret(host, encrypted_data_bag_secret, ssh: ssh, winrm: winrm, connector: options[:connector])
     end
 
     # Executes an arbitrary ruby script using the best worker available
@@ -118,10 +122,12 @@ module Ridley
     #
     # @param [String] host
     # @param [Array<String>] command_lines
+    # @option options [String] :connector
+    #   a connectory type to prefer    
     #
     # @return [HostConnector::Response]
-    def ruby_script(host, command_lines)
-      host_commander.ruby_script(host, command_lines, ssh: ssh, winrm: winrm)
+    def ruby_script(host, command_lines, options = {})
+      host_commander.ruby_script(host, command_lines, ssh: ssh, winrm: winrm, connector: options[:connector])
     end
 
     # Executes the given command on a node using the best worker
@@ -131,8 +137,8 @@ module Ridley
     # @param [String] command
     #
     # @return [HostConnector::Response]
-    def run(host, command)
-      host_commander.run(host, command, ssh: ssh, winrm: winrm)
+    def run(host, command, options = {})
+      host_commander.run(host, command, ssh: ssh, winrm: winrm, connector: options[:connector])
     end
     alias_method :execute_command, :run
 

@@ -208,5 +208,43 @@ describe Ridley::HostCommander do
       subject.should_receive(:winrm)
       subject.connector_for(host, winrm: nil, ssh: nil)
     end
+
+    context "when a connector of winrm is given" do
+      let(:options) do
+        { ssh: { port: 22, timeout: 3 }, winrm: { port: 5985, timeout: 3 }, retries: 3, connector: "winrm" }
+      end
+      let(:winrm) { double }
+
+      it "should return winrm if winrm is open" do
+        subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT, anything, anything).and_return(true)
+        subject.stub(:winrm).and_return(winrm)
+        expect(subject.connector_for(host, options)).to eql(winrm)
+      end
+
+      it "should return nil if winrm is closed" do
+        subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT, anything, anything).and_return(false)
+        expect(subject.connector_for(host, options)).to be_nil
+      end
+    end
+
+    context "when a connector of ssh is given" do
+      let(:options) do
+        { ssh: { port: 22, timeout: 3 }, winrm: { port: 5985, timeout: 3 }, retries: 3, connector: "ssh" }
+      end
+      let(:ssh) { double }
+
+      it "should return ssh if ssh is open" do
+        subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::SSH::DEFAULT_PORT, anything, anything).and_return(true)
+        subject.stub(:ssh).and_return(ssh)
+        subject.should_not_receive(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT, anything, anything)
+        expect(subject.connector_for(host, options)).to eql(ssh)
+      end
+
+      it "should return nil if ssh is closed" do
+        subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::SSH::DEFAULT_PORT, anything, anything).and_return(false)
+        subject.should_not_receive(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT, anything, anything)
+        expect(subject.connector_for(host, options)).to be_nil
+      end
+    end
   end
 end
