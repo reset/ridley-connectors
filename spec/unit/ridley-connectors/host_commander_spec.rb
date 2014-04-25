@@ -209,4 +209,26 @@ describe Ridley::HostCommander do
       subject.connector_for(host, winrm: nil, ssh: nil)
     end
   end
+
+  describe "#connector_port_open?" do
+    let(:host) { "host.com" }
+    let(:port) { 1234 }
+
+    it "should return false if the port connection times out" do
+      Thread.any_instance.stub(:alive?).and_return(true, false)
+      NIO::Selector.any_instance.stub(:select)
+
+      expect(subject.send(:connector_port_open?, host, port)).to be_false
+    end
+
+    it "should return true if the port connection is successful" do
+      Celluloid::IO::TCPSocket.stub(:new).and_return nil
+      expect(subject.send(:connector_port_open?, host, port)).to be_true
+    end
+    
+    it "should return false if the port connection raises any error" do
+      Celluloid::IO::TCPSocket.stub(:new).and_return { raise "any error" }
+      expect(subject.send(:connector_port_open?, host, port)).to be_false
+    end
+  end
 end
