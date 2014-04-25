@@ -255,7 +255,7 @@ module Ridley
           defer {
             socket_thread = nil
             control_thread = Thread.new {
-              NIO::Selector.new.select(3)
+              NIO::Selector.new.select(wait_time || PORT_CHECK_TIMEOUT)
               socket_thread.kill if socket_thread.alive?
             }
             socket_thread = Thread.new {
