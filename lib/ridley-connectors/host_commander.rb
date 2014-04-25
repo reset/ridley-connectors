@@ -251,6 +251,7 @@ module Ridley
       def connector_port_open?(host, port, wait_time = nil, retries = RETRY_COUNT)
         @retry_count = retries
         begin
+          success = false
           defer {
             socket_thread = nil
             control_thread = Thread.new {
@@ -258,16 +259,25 @@ module Ridley
               socket_thread.kill if socket_thread.alive?
             }
             socket_thread = Thread.new {
-              Celluloid::IO::TCPSocket.new(host, port) rescue nil
+              begin
+                Celluloid::IO::TCPSocket.new(host, port)
+              rescue
+                success = false
+              else
+                success = true
+              end
               control_thread.kill if control_thread.alive?
             }
 
             while socket_thread.alive?
-              return false unless control_thread.alive?
+              if not control_thread.alive?
+                success = false
+              end
               NIO::Selector.new.select(0.1)
             end
-            return true
           }
+          
+          success
         rescue *CONNECTOR_PORT_ERRORS => ex
           @retry_count -= 1
           if @retry_count > 0
