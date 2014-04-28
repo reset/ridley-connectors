@@ -171,10 +171,9 @@ describe Ridley::HostCommander do
     context "when connector_port_open? experiences an error" do
       let(:socket) { double(close: true) }
 
-
-      before do
+      it "executes retry logic" do
         @times_called = 0
-        Celluloid::IO::TCPSocket.stub(:new).and_return do
+        subject.should_receive(:connectable?).twice.and_return do
           @times_called += 1
           if @times_called == 1
             raise Errno::ETIMEDOUT
@@ -182,10 +181,7 @@ describe Ridley::HostCommander do
             socket
           end
         end
-      end
 
-      it "executes retry logic" do
-        expect(Celluloid::IO::TCPSocket).to receive(:new).twice
         subject.connector_for(host)
       end
     end
@@ -244,6 +240,70 @@ describe Ridley::HostCommander do
         subject.stub(:connector_port_open?).with(host, Ridley::HostConnector::SSH::DEFAULT_PORT, anything, anything).and_return(false)
         subject.should_not_receive(:connector_port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT, anything, anything)
         expect(subject.connector_for(host, options)).to be_nil
+      end
+    end
+  end
+
+  describe "#connectable?", focus: true do
+    let(:port) { 1234 }
+
+    before do
+      Socket
+        .stub(:getaddrinfo)
+        .with(host, nil)
+        .and_return [["AF_INET", 0, "33.33.33.10", "33.33.33.10", 2, 2, 17], 
+                     ["AF_INET", 0, "33.33.33.10", "33.33.33.10", 2, 1,  6]]
+    end
+
+    context "when the target is accessible" do
+      before do
+        calls = 0
+        Socket.any_instance.stub(:connect_nonblock).and_return do
+          calls += 1
+          if calls == 1
+            raise ::IO::EAGAINWaitWritable.new
+          end
+          raise Errno::EISCONN.new
+        end
+      end
+
+      it "should return true when a connection is initiated" do
+        ::IO.stub(:select).and_return ["an array!"]
+        
+        expect(subject.send(:connectable?, host, port)).to be_true
+      end
+
+      it "should return false when select times out" do
+        ::IO.stub(:select).and_return nil
+
+        expect(subject.send(:connectable?, host, port)).to be_false
+      end
+
+      it "should return true when the connection does not have to wait" do
+        Socket.any_instance.stub(:connect_nonblock).and_return 0
+        
+        expect(subject.send(:connectable?, host, port)).to be_true
+      end
+    end
+
+    Ridley::HostCommander::CONNECTOR_PORT_ERRORS.each do |error|
+      context "when the target causes #{error}" do
+        before do
+          calls = 0
+          Socket.any_instance.stub(:connect_nonblock).and_return do
+            calls += 1
+            if calls == 1
+              raise ::IO::EAGAINWaitWritable.new
+            end
+            raise error.new
+          end
+        end
+
+        it "should return false" do
+          ::IO.stub(:select).and_return []
+
+          expect(subject.send(:connectable?, host, port)).to be_false
+        end
       end
     end
   end

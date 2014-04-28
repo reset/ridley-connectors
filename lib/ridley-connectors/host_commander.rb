@@ -259,17 +259,17 @@ module Ridley
       #   the host to attempt to connect to
       # @param [Fixnum] port
       #   the port to attempt to connect on
-      # @param [Float] wait_time ({PORT_CHECK_TIMEOUT})
+      # @param [Float] timeout ({PORT_CHECK_TIMEOUT})
       #   the number of seconds to wait
       # @param [Int] retries ({RETRY_COUNT})
       #   the number of times to retry the connection before counting it unavailable
       #
       # @return [Boolean]
-      def connector_port_open?(host, port, wait_time = nil, retries = RETRY_COUNT)
+      def connector_port_open?(host, port, timeout = nil, retries = RETRY_COUNT)
         @retry_count = retries
         begin
           defer {
-            Timeout.timeout(wait_time || PORT_CHECK_TIMEOUT) { Celluloid::IO::TCPSocket.new(host, port).close; true }
+            connectable?(host, port, timeout)
           }
         rescue *CONNECTOR_PORT_ERRORS => ex
           @retry_count -= 1
@@ -279,6 +279,33 @@ module Ridley
           end
           false
         end
+      end
+
+      def connectable?(host, port, timeout = PORT_CHECK_TIMEOUT)
+        addr = Socket.getaddrinfo(host, nil)
+        sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
+        socket = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
+        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+
+        success = false
+        begin
+          socket.connect_nonblock(sockaddr)
+          success = true
+        rescue ::IO::WaitWritable
+          if ::IO.select(nil, [socket], nil, timeout)
+            begin
+              socket.connect_nonblock(sockaddr)
+            rescue Errno::EISCONN
+              socket.close
+              success = true
+            rescue
+              socket.close
+            end
+          else
+            socket.close
+          end
+        end
+        success
       end
 
       def finalize_callback
