@@ -265,7 +265,7 @@ module Ridley
       #   the number of times to retry the connection before counting it unavailable
       #
       # @return [Boolean]
-      def connector_port_open?(host, port, timeout = nil, retries = RETRY_COUNT)
+      def connector_port_open?(host, port, timeout = PORT_CHECK_TIMEOUT, retries = RETRY_COUNT)
         @retry_count = retries
         begin
           defer {
@@ -281,7 +281,16 @@ module Ridley
         end
       end
 
-      def connectable?(host, port, timeout = nil)
+      # Check if a port on a host is able to be connected, failing if the timeout transpires.
+      #
+      # @param [String] host
+      #   the host to attempt to connect to
+      # @param [Fixnum] port
+      #   the port to attempt to connect on
+      # @param [Fixnum] timeout ({PORT_CHECK_TIMEOUT})
+      # 
+      # @return [Boolean]
+      def connectable?(host, port, timeout = PORT_CHECK_TIMEOUT)
         addr = Socket.getaddrinfo(host, nil)
         sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
         socket = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
