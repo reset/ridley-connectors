@@ -299,7 +299,7 @@ describe Ridley::HostCommander do
           Socket.any_instance.stub(:connect_nonblock).and_return do
             calls += 1
             if calls == 1
-              raise ::IO::EAGAINWaitWritable.new
+              raise WaitWritableError.new
             end
             raise error.new
           end
