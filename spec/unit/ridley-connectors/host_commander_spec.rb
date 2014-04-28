@@ -244,7 +244,7 @@ describe Ridley::HostCommander do
     end
   end
 
-  describe "#connectable?", focus: true do
+  describe "#connectable?" do
     let(:port) { 1234 }
 
     before do

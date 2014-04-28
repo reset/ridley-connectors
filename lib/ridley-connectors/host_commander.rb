@@ -295,6 +295,7 @@ module Ridley
           if ::IO.select(nil, [socket], nil, timeout || PORT_CHECK_TIMEOUT)
             begin
               socket.connect_nonblock(sockaddr)
+              success = true
             rescue Errno::EISCONN
               success = true
             rescue
