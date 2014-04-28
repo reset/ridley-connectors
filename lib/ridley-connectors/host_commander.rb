@@ -296,7 +296,6 @@ module Ridley
             begin
               socket.connect_nonblock(sockaddr)
             rescue Errno::EISCONN
-              socket.close
               success = true
             rescue
               socket.close
