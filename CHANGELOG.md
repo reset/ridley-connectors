@@ -1,3 +1,8 @@
+## v.2.1.0
+
+* [#21](https://github.com/RiotGames/ridley-connectors/pull/21) Fix bootstrappers and pathing to files moved from Ridley
+* [#22](https://github.com/RiotGames/ridley-connectors/pull/22) Added a new option to allow connector_for to pick a connector more intelligently
+
 ## v.2.0.1
 
 * [#18](https://github.com/RiotGames/ridley-connectors/pull/18) Move more connector-specific code out of ridley and into ridley-connectors
