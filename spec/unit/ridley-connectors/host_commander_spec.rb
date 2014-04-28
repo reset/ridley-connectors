@@ -273,6 +273,12 @@ describe Ridley::HostCommander do
         expect(subject.send(:connectable?, host, port)).to be_true
       end
 
+      it "should return true when a connection is initiated and an explicit nil is passed as the timeout" do
+        ::IO.stub(:select).with(anything, anything, anything, Ridley::HostCommander::PORT_CHECK_TIMEOUT).and_return ["an array!"]
+        
+        expect(subject.send(:connectable?, host, port, nil)).to be_true
+      end
+
       it "should return false when select times out" do
         ::IO.stub(:select).and_return nil
 

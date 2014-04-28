@@ -269,7 +269,7 @@ module Ridley
         @retry_count = retries
         begin
           defer {
-            connectable?(host, port, timeout)
+            connectable?(host, port, timeout || PORT_CHECK_TIMEOUT)
           }
         rescue *CONNECTOR_PORT_ERRORS => ex
           @retry_count -= 1
@@ -281,7 +281,7 @@ module Ridley
         end
       end
 
-      def connectable?(host, port, timeout = PORT_CHECK_TIMEOUT)
+      def connectable?(host, port, timeout = nil)
         addr = Socket.getaddrinfo(host, nil)
         sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
         socket = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
@@ -292,7 +292,7 @@ module Ridley
           socket.connect_nonblock(sockaddr)
           success = true
         rescue ::IO::WaitWritable
-          if ::IO.select(nil, [socket], nil, timeout)
+          if ::IO.select(nil, [socket], nil, timeout || PORT_CHECK_TIMEOUT)
             begin
               socket.connect_nonblock(sockaddr)
             rescue Errno::EISCONN
