@@ -303,12 +303,20 @@ describe Ridley::HostCommander do
             end
             raise error.new
           end
+
+          ::IO.stub(:select).and_return []
         end
 
-        it "should return false" do
-          ::IO.stub(:select).and_return []
+        context "should return false" do
+          it "" do
+            expect(subject.send(:connectable?, host, port)).to be_false
+          end
 
-          expect(subject.send(:connectable?, host, port)).to be_false
+          it "when the socket close throws EBAFD" do
+            Socket.any_instance.stub(:close).and_return { raise Errno::EBADF.new }
+
+            expect(subject.send(:connectable?, host, port)).to be_false
+          end
         end
       end
     end

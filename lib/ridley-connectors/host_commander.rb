@@ -298,7 +298,11 @@ module Ridley
             rescue Errno::EISCONN
               success = true
             rescue
-              socket.close
+              begin
+                socket.close
+              rescue Errno::EBADF
+                # socket is not open
+              end
             end
           else
             socket.close
