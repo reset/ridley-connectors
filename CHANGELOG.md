@@ -1,3 +1,7 @@
+## v.2.1.1
+
+* [#24](https://github.com/RiotGames/ridley-connectors/pull/24) Fix a bug with Timeout.rb unable to interrupt Socket connections (mostly JRuby)
+
 ## v.2.1.0
 
 * [#21](https://github.com/RiotGames/ridley-connectors/pull/21) Fix bootstrappers and pathing to files moved from Ridley
