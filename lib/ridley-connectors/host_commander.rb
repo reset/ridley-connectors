@@ -219,7 +219,7 @@ module Ridley
       connector = options[:connector]
 
       if !VALID_CONNECTORS.include?(connector)
-        log.warn { "Received connector '#{connector}' is not one of #{VALID_CONNECTORS}. Setting connector to nil." }
+        log.warn { "Received connector '#{connector}' is not one of #{VALID_CONNECTORS}. Checking default connectors..." }
         connector = nil
       end
 
