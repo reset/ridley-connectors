@@ -29,6 +29,8 @@ module Ridley
     DEFAULT_WINDOWS_CONNECTOR = "winrm"
     DEFAULT_LINUX_CONNECTOR = "ssh"
 
+    VALID_CONNECTORS = [ DEFAULT_WINDOWS_CONNECTOR, DEFAULT_LINUX_CONNECTOR ]
+
     CONNECTOR_PORT_ERRORS = [
       Errno::ETIMEDOUT, Timeout::Error, SocketError, 
       Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::EADDRNOTAVAIL,
@@ -215,6 +217,11 @@ module Ridley
       options[:retries]      ||= RETRY_COUNT
 
       connector = options[:connector]
+
+      if !VALID_CONNECTORS.include?(connector)
+        log.warn { "Received connector '#{connector}' is not one of #{VALID_CONNECTORS}. Setting connector to nil." }
+        connector = nil
+      end
 
       if (connector == DEFAULT_WINDOWS_CONNECTOR || connector.nil?) && connector_port_open?(host, options[:winrm][:port], options[:winrm][:timeout], options[:retries])
         options.delete(:ssh)
