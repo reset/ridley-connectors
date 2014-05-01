@@ -1,3 +1,7 @@
+## v.2.1.2
+
+* [#25](https://github.com/RiotGames/ridley-connectors/pull/25) Fix an edge case in the connector_for logic from #22
+
 ## v.2.1.1
 
 * [#24](https://github.com/RiotGames/ridley-connectors/pull/24) Fix a bug with Timeout.rb unable to interrupt Socket connections (mostly JRuby)
