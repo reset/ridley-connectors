@@ -24,6 +24,26 @@ module Ridley
       def temp_path
         "/tmp"
       end
+
+      def upgrade_solo_rb
+        "/tmp/upgrade_solo.rb"
+      end
+
+      def upgrade_cookbook_path
+        "/tmp/cookbooks/upgrade_omnibus/recipes/"
+      end
+
+      def chef_solo_command
+        "chef-solo -c #{upgrade_solo_rb} -o upgrade_omnibus"
+      end
+
+      def recipe_name
+        "default.rb"
+      end
+
+      def chef_apply_command
+        "chef-apply #{File.join(temp_path, recipe_name)}"
+      end
     end
   end
 end
