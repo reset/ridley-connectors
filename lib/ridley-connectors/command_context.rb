@@ -49,22 +49,7 @@ module Ridley
     end
 
     # A command context for Unix based OSes
-    class Unix < Base
-      # @return [Boolean]
-      attr_reader :sudo
-
-      # @option options [Boolean] :sudo (true)
-      #   bootstrap with sudo (default: true)
-      def initialize(options = {})
-        options = options.reverse_merge(sudo: true)
-        @sudo   = options[:sudo]
-      end
-
-      # @return [String]
-      def command
-        super
-      end
-    end
+    class Unix < Base; end
 
     # A command context for Windows based OSes
     class Windows < Base; end

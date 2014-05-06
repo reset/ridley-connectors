@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Ridley::CommandContext::UnixUpdateOmnibus, focus: true do
+describe Ridley::CommandContext::UnixUpdateOmnibus do
   let(:unix_update_omnibus) { described_class.new }
 
   describe "::new" do

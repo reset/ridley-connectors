@@ -66,4 +66,32 @@ describe Ridley::HostConnector::SSH do
       connector.ruby_script(host, command_lines, options)
     end
   end
+
+  describe "#uninstall_chef" do
+    let(:command) { "uninstall chef" }
+
+    before do
+      Ridley::CommandContext::UnixUninstall.stub(:command).and_return(command)
+    end
+
+    it "receives a run command to uninstall chef" do
+      connector.should_receive(:run).with(host, command, options)
+
+      connector.uninstall_chef(host, options)
+    end
+  end
+
+  describe "#update_omnibus" do
+    let(:command) { "update omnibus" }
+
+    before do
+      Ridley::CommandContext::UnixUpdateOmnibus.stub(:command).and_return(command)
+    end
+
+    it "receives a run command to update omnibus" do
+      connector.should_receive(:run).with(host, command, options)
+
+      connector.update_omnibus(host, options)
+    end
+  end
 end

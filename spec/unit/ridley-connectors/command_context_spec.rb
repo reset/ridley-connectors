@@ -31,26 +31,3 @@ describe Ridley::CommandContext::Base do
     end
   end
 end
-
-describe Ridley::CommandContext::Unix do
-  let(:unix) { described_class.new(options) }
-
-  describe "#command" do
-    context "when sudo is true" do
-      let(:command) { unix.command }
-      let(:template) { double(:evaluate => command_string) }
-      let(:options) do
-        {sudo: true}
-      end
-      let(:command_string) { "echo 'hi'" }
-
-      before do
-        unix.stub(:template).and_return(template)
-      end
-
-      it "prepends sudo to the command" do
-        expect(command).to eql("sudo echo 'hi'")
-      end
-    end
-  end
-end
