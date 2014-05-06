@@ -22,23 +22,23 @@ module Ridley
       end
 
       # @return [String]
-      def temp_path
+      def tmp_path
         "/tmp"
       end
 
       # @return [String]
       def upgrade_solo_rb_path
-        File.join(temp_path, "upgrade_solo.rb")
+        File.join(tmp_path, "upgrade_solo.rb")
       end
 
       # @return [String]
       def recipe_path
-        File.join(temp_path, "default.rb")
+        File.join(tmp_path, "default.rb")
       end
 
       # @return [String]
       def tmp_cookbook_path
-        File.join(temp_path, "cookbooks")
+        File.join(tmp_path, "cookbooks")
       end
 
       # @return [String]

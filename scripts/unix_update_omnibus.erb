@@ -32,7 +32,7 @@ if result.kind_of?(Net::HTTPRedirection)
 end
 
 file_name = ::File.basename(full_url)
-file_download_path = ::File.join("<%= temp_path %>", file_name)
+file_download_path = ::File.join("<%= tmp_path %>", file_name)
 
 remote_file file_download_path do
   source full_url
@@ -75,4 +75,4 @@ fi
 rm -f <%= upgrade_solo_rb_path %>
 rm -rf <%= tmp_cookbook_path %>
 rm -f <%= recipe_path %>
-rm -rf <%= temp_path %>/*.rpm
+rm -rf <%= tmp_path %>/*.rpm
