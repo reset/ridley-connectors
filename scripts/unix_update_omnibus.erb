@@ -1,4 +1,4 @@
-cat << EOP > <%= ::File.join(temp_path, recipe_name) %>
+cat << EOP > <%= recipe_path %>
 
 # Set Variables
 
@@ -13,13 +13,17 @@ nightlies = false
 # Compose Chef download URL
 
 url = 'http://www.opscode.com/chef/download'
-url_args = [ "p=#{platform}", "pv=#{platform_version", "m=#{machine}", "v=#{chef_version}", "prerelease=#{prerelease}", "nightlies=#{nightlies}" ]
+url_args = [ "p=#{platform}", "pv=#{platform_version}", "m=#{machine}", "v=#{chef_version}", "prerelease=#{prerelease}", "nightlies=#{nightlies}" ]
 
 composed_url = "#{url}?#{url_args.join('&')}"
 
 # Download the Chef file
 
-full_url = <%= direct_url %> || composed_url
+<% if direct_url.nil? -%>
+full_url = composed_url
+<% else -%>
+full_url = <%= direct_url %>
+<% end -%>
 request = Chef::REST::RESTRequest.new(:head, URI.parse(full_url), nil)
 result = request.call
 
@@ -43,7 +47,7 @@ file_extension = ::File.extname(file_name)
 execute "Install the Omnibus package: #{file_download_path}" do
   case file_extension
   when '.rpm'
-    command "rpm -Uvh #{file_download_path}"
+    command "rpm -Uvh --oldpackage --replacepkgs #{file_download_path}"
   when '.msi'
     command "msiexec /qb /i #{file_download_path}"
   else
@@ -53,12 +57,22 @@ end
 
 EOP
 
+# Install the Chef package using the resources above and chef-solo / chef-apply
+
 installed_major_chef_version=`chef-client -v | awk '{print $2}' | awk -F \. '{print $1}'`
 
 if [ $installed_major_chef_version -lt 11 ]; then
-  mkdir -p <%= upgrade_cookbook_path %>
-  mv <%= ::File.join(temp_path, recipe_name) %> <%= upgrade_cookbook_path %>
+  mkdir -p <%= File.join(tmp_cookbook_path, "upgrade_omnibus/recipes/") %>
+  cp <%= recipe_path %> <%= File.join(tmp_cookbook, "recipes") %>
+  echo 'cookbook_path "/tmp/cookbooks"' > <%= upgrade_solo_rb_path %>
   <%= chef_solo_command %>
 else
   <%= chef_apply_command %>
 fi
+
+# Cleanup
+
+rm -f <%= upgrade_solo_rb_path %>
+rm -rf <%= tmp_cookbook_path %>
+rm -f <%= recipe_path %>
+rm -rf <%= temp_path %>/*.rpm

@@ -194,6 +194,15 @@ module Ridley
         run(host, CommandContext::UnixUninstall.command(options), options)
       end
 
+      def update_omnibus(host, options = {})
+        options = options.reverse_merge(ssh: Hash.new)
+
+        options[:ssh].reverse_merge!(sudo: true, timeout: 5.0)
+
+        # log.info "Uninstalling Chef from host: #{host}"
+        run(host, CommandContext::UnixUpdateOmnibus.command(options), options)
+      end
+
       private
 
         def channel_exec(channel, command, host, response)

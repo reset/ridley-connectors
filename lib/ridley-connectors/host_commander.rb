@@ -194,6 +194,10 @@ module Ridley
       execute(__method__, host, options)
     end
 
+    def update_omnibus(host, options = {})
+      execute(__method__, host, options)
+    end
+
     # Finds and returns the best HostConnector for a given host
     #
     # @param [String] host

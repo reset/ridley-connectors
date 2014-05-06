@@ -62,7 +62,7 @@ module Ridley
 
       # @return [String]
       def command
-        sudo ? "sudo #{super}" : super
+        super
       end
     end
 

@@ -21,28 +21,39 @@ module Ridley
         @direct_url = options[:direct_url]
       end
 
+      # @return [String]
       def temp_path
         "/tmp"
       end
 
-      def upgrade_solo_rb
-        "/tmp/upgrade_solo.rb"
+      # @return [String]
+      def upgrade_solo_rb_path
+        File.join(temp_path, "upgrade_solo.rb")
       end
 
-      def upgrade_cookbook_path
-        "/tmp/cookbooks/upgrade_omnibus/recipes/"
+      # @return [String]
+      def recipe_path
+        File.join(temp_path, "default.rb")
       end
 
+      # @return [String]
+      def tmp_cookbook_path
+        File.join(temp_path, "cookbooks")
+      end
+
+      # @return [String]
+      def tmp_cookbook
+        File.join(tmp_cookbook_path, "upgrade_omnibus")
+      end
+
+      # @return [String]
       def chef_solo_command
-        "chef-solo -c #{upgrade_solo_rb} -o upgrade_omnibus"
+        "chef-solo -c #{upgrade_solo_rb_path} -o upgrade_omnibus"
       end
 
-      def recipe_name
-        "default.rb"
-      end
-
+      # @return [String]
       def chef_apply_command
-        "chef-apply #{File.join(temp_path, recipe_name)}"
+        "chef-apply #{recipe_path}"
       end
     end
   end

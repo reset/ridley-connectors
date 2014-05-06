@@ -192,6 +192,11 @@ module Ridley
       host_commander.uninstall_chef(host, options)
     end
 
+    def update_omnibus(host, options = {})
+      options = options.reverse_merge(ssh: ssh, winrm: winrm)
+      host_commander.update_omnibus(host, options)
+    end
+
     private
 
       # @return [Ridley::HostCommander]
