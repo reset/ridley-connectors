@@ -29,20 +29,43 @@ module Ridley
         "#{update_dir}\\default.rb"
       end
 
+      def tmp_cookbook_path
+        "#{update_dir}\\cookbooks\\upgrade_omnibus"
+      end
+
+      def tmp_recipes_path
+        "#{tmp_cookbook_path}\\recipes"
+      end
+
+      def upgrade_solo_rb_path
+        "#{update_dir}\\upgrade_solo.rb"
+      end
+
+      def chef_solo_command
+        "chef-solo -c #{upgrade_solo_rb_path} -o upgrade_omnibus"
+      end
+
+      def chef_apply_command
+        "chef-apply #{recipe_path}"
+      end
+
       def recipe_code
         code = <<-RECIPE_CODE
 chef_version = '#{chef_version}'
 prerelease = #{prerelease}
 
 platform = node[:platform]
-platform_version = node[:platform_version]
+case node[:platform_version]
+when "6.1.7601"
+  platform_version = "2008r2"
+end
 machine = node[:kernel][:machine]
 nightlies = false
 
 url = 'http://www.opscode.com/chef/download'
 url_args = [ "p=\#{platform}", "pv=\#{platform_version}", "m=\#{machine}", "v=\#{chef_version}", "prerelease=\#{prerelease}", "nightlies=\#{nightlies}" ]
 
-composed_url = "\#{url}?\#{url_args.join('&')}"
+composed_url = "\#{url}?\#{url_args.join '&'}"
 
 #{direct_url.nil? ? "full_url = composed_url" : "full_url = \"#{direct_url}\""}
 request = Chef::REST::RESTRequest.new(:head, URI.parse(full_url), nil)
@@ -53,7 +76,7 @@ if result.kind_of?(Net::HTTPRedirection)
 end
 
 file_name = ::File.basename(full_url)
-file_download_path = ::File.join("#{update_dir}", file_name)
+file_download_path = "C:\\\\chef\\\\update\\\\\#{file_name}"
 
 remote_file file_download_path do
   source full_url
