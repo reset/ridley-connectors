@@ -213,6 +213,12 @@ module Ridley
         run(host, CommandContext::WindowsUninstall.command(options), options)
       end
 
+      def update_omnibus(host, options = {})
+        log.info "Updating Omnibus installation on host: #{host}"
+        options[:force_batch_file] = true
+        run(host, CommandContext::WindowsUpdateOmnibus.command(options), options)
+      end
+
       private
 
         # @param [String] host
