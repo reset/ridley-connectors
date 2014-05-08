@@ -4,17 +4,27 @@ mkdir <%= update_dir %>
 <%= recipe_code %>
 )
 
-chef-client -v | awk '{print $2}' | awk -F \. '{print $1}' > <%= update_dir %>\version.txt
-SET /p installed_major_chef_version=<<%= update_dir %>\version.txt
+chef-client -v | awk '{print $2}' | awk -F \. '{print $1}' > <%= update_dir %>\major_version.txt
+SET /p installed_major_chef_version=<<%= update_dir %>\major_version.txt
 
 IF %installed_major_chef_version% LSS 11 (
   mkdir <%= tmp_cookbook_path %>
   mkdir <%= tmp_recipes_path %>
   cp <%= recipe_path %> <%= tmp_recipes_path %>
   echo cookbook_path 'C:\chef\update\cookbooks' > <%= upgrade_solo_rb_path %>
-  <%= chef_solo_command %>
+  call <%= chef_solo_command %>
 ) else (
-  <%= chef_apply_command %>
+  call <%= chef_apply_command %>
 )
+
+> <%= update_dir %>\uninstall_chef.ps1 (
+  <%= uninstall_chef %>
+)
+
+ls <%= update_dir %> | grep "chef-client" > <%= update_dir %>\msi_name.txt
+SET /p msi_name=<<%= update_dir %>\msi_name.txt
+powershell -ExecutionPolicy Unrestricted -NoProfile -NonInteractive <%= update_dir %>\uninstall_chef.ps1
+
+msiexec /qb /norestart /i "<%= update_dir %>\%msi_name%"
 
 rm -rf <%= update_dir %>

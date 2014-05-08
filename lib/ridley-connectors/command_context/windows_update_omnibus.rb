@@ -86,16 +86,18 @@ end
 
 file_extension = ::File.extname(file_name)
 
-execute "Install the Omnibus package: \#{file_download_path}" do
-  case file_extension
-  when '.msi'
-    command "msiexec /qb /i \#{file_download_path}"
-  else
-    raise 'Unknown package type encountered!'
-  end
-end
 RECIPE_CODE
         escape_and_echo(code)
+      end
+
+      def uninstall_chef
+        win_uninstall_chef = <<-UNIN_PS
+      $productName      = "Chef"
+      $app = Get-WmiObject -Class Win32_Product | Where-Object {  $_.Name -match $productName  }
+      If ($app) { $app.Uninstall() }
+        UNIN_PS
+
+        escape_and_echo(win_uninstall_chef)
       end
 
       def escape_and_echo(file_contents)
