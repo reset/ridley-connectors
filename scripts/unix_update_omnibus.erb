@@ -48,8 +48,8 @@ execute "Install the Omnibus package: #{file_download_path}" do
   case file_extension
   when '.rpm'
     command "rpm -Uvh --oldpackage --replacepkgs #{file_download_path}"
-  when '.msi'
-    command "msiexec /qb /i #{file_download_path}"
+  when '.deb'
+    command "dpkg -i #{file_download_path}"
   else
     raise 'Unknown package type encountered!'
   end
