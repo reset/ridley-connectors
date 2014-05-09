@@ -1,6 +1,6 @@
 module Ridley
   module CommandContext
-    # Context class for generating an upgrade command for an Omnibus Chef installation on Unix based OSes
+    # Context class for generating an upgrade command for an Omnibus Chef installation on Windows based OSes
     class WindowsUpdateOmnibus < CommandContext::Windows
       template_file 'windows_update_omnibus'
 
@@ -21,34 +21,45 @@ module Ridley
         @direct_url = options[:direct_url]
       end
 
+      # @return [String]
       def update_dir
         "C:\\chef\\update"
       end      
 
+      # @return [String]
       def recipe_path
         "#{update_dir}\\default.rb"
       end
 
+      # @return [String]
       def tmp_cookbook_path
         "#{update_dir}\\cookbooks\\upgrade_omnibus"
       end
 
+      # @return [String]
       def tmp_recipes_path
         "#{tmp_cookbook_path}\\recipes"
       end
 
+      # @return [String]
       def upgrade_solo_rb_path
         "#{update_dir}\\upgrade_solo.rb"
       end
 
+      # @return [String]
       def chef_solo_command
         "chef-solo -c #{upgrade_solo_rb_path} -o upgrade_omnibus"
       end
 
+      # @return [String]
       def chef_apply_command
         "chef-apply #{recipe_path}"
       end
 
+      # Writes a recipe that uses remote_file to download the appropriate
+      # Chef MSI file 
+      #
+      # @return [String]
       def recipe_code
         code = <<-RECIPE_CODE
 chef_version = '#{chef_version}'
@@ -90,6 +101,9 @@ RECIPE_CODE
         escape_and_echo(code)
       end
 
+      # Uses powershell to find a Chef installation and uninstalls it
+      #
+      # @return [String]
       def uninstall_chef
         win_uninstall_chef = <<-UNIN_PS
       $productName      = "Chef"
@@ -100,6 +114,10 @@ RECIPE_CODE
         escape_and_echo(win_uninstall_chef)
       end
 
+      private
+
+      # escape WIN BATCH special chars and prefixes each line with an
+      # echo
       def escape_and_echo(file_contents)
         file_contents.gsub(/^(.*)$/, 'echo.\1').gsub(/([(<|>)^])/, '^\1')
       end

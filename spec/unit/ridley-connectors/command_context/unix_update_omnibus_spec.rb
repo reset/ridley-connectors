@@ -46,9 +46,9 @@ describe Ridley::CommandContext::UnixUpdateOmnibus do
     end
   end
 
-  describe "#tmp_path" do
+  describe "#update_dir" do
     it "returns a string" do
-      expect(unix_update_omnibus.tmp_path).to be_a(String)
+      expect(unix_update_omnibus.update_dir).to be_a(String)
     end
   end
 
