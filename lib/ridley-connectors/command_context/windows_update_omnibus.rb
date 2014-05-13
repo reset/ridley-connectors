@@ -24,7 +24,7 @@ module Ridley
       # @return [String]
       def update_dir
         "C:\\chef\\update"
-      end      
+      end
 
       # @return [String]
       def recipe_path
@@ -57,7 +57,7 @@ module Ridley
       end
 
       # Writes a recipe that uses remote_file to download the appropriate
-      # Chef MSI file 
+      # Chef MSI file
       #
       # @return [String]
       def recipe_code
@@ -66,10 +66,28 @@ chef_version = '#{chef_version}'
 prerelease = #{prerelease}
 
 platform = node[:platform]
-case node[:platform_version]
-when "6.1.7601"
-  platform_version = "2008r2"
+platform_version = if node[:product_type] == 1 # Not server
+  case node[:platform_version]
+  when /6\.1\./
+    "7"
+  when /6\.2\./
+    "8"
+  end
+else # server
+  case node[:platform_version]
+  when /5\.2\.3/
+    "2003r2"
+  when /6\.0\./
+    "2008"
+  when /6\.1\./
+    "2008r2"
+  when /6\.2\./
+    "2012"
+  when /6\.3\./
+    "2012r2"
+  end
 end
+
 machine = node[:kernel][:machine]
 nightlies = false
 
