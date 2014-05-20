@@ -247,7 +247,7 @@ module Ridley
 
         if options[:ssh][:gateway]
           gw_host, gw_port, _ = gateway(options)
-          log.info("host: #{gw_host}, port: #{gw_port}")
+          log.info("Connecting to host '#{gw_host}' via SSH gateway over port '#{gw_port}'")
           port_open?(gw_host, gw_port, options[:ssh][:timeout])
         else
           port_open?(host, options[:ssh][:port], options[:ssh][:timeout])
