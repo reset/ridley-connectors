@@ -1,3 +1,7 @@
+## v.2.2.0
+
+* [#27](https://github.com/RiotGames/ridley-connectors/pull/27) New upgrade_omnibus feature for updating a node's Omnibus installation of Chef
+
 ## v.2.1.2
 
 * [#25](https://github.com/RiotGames/ridley-connectors/pull/25) Fix an edge case in the connector_for logic from #22
