@@ -1,4 +1,4 @@
-module  Ridley
+module Ridley
   module HostConnector
     class Base
       include Celluloid
