@@ -1,0 +1,78 @@
+cat << EOP > <%= recipe_path %>
+
+# Set Variables
+
+chef_version = '<%= chef_version %>'
+prerelease = <%= prerelease %>
+
+platform = node[:platform]
+platform_version = node[:platform_version]
+machine = node[:kernel][:machine]
+nightlies = false
+
+# Compose Chef download URL
+
+url = 'http://www.opscode.com/chef/download'
+url_args = [ "p=#{platform}", "pv=#{platform_version}", "m=#{machine}", "v=#{chef_version}", "prerelease=#{prerelease}", "nightlies=#{nightlies}" ]
+
+composed_url = "#{url}?#{url_args.join('&')}"
+
+# Download the Chef file
+
+<% if direct_url.nil? -%>
+full_url = composed_url
+<% else -%>
+full_url = <%= direct_url %>
+<% end -%>
+request = Chef::REST::RESTRequest.new(:head, URI.parse(full_url), nil)
+result = request.call
+
+if result.kind_of?(Net::HTTPRedirection)
+  full_url = result['location']
+end
+
+file_name = ::File.basename(full_url)
+file_download_path = ::File.join("<%= update_dir %>", file_name)
+
+remote_file file_download_path do
+  source full_url
+  backup false
+  action :create_if_missing
+end
+
+# Install the Chef file
+
+file_extension = ::File.extname(file_name)
+
+execute "Install the Omnibus package: #{file_download_path}" do
+  case file_extension
+  when '.rpm'
+    command "rpm -Uvh --oldpackage --replacepkgs #{file_download_path}"
+  when '.deb'
+    command "dpkg -i #{file_download_path}"
+  else
+    raise 'Unknown package type encountered!'
+  end
+end
+
+EOP
+
+# Install the Chef package using the resources above and chef-solo / chef-apply
+
+installed_major_chef_version=`chef-client -v | awk '{print $2}' | awk -F \. '{print $1}'`
+
+if [ $installed_major_chef_version -lt 11 ]; then
+  mkdir -p <%= File.join(tmp_cookbook_path, "upgrade_omnibus/recipes/") %>
+  cp <%= recipe_path %> <%= File.join(tmp_cookbook, "recipes") %>
+  echo 'cookbook_path "/tmp/cookbooks"' > <%= upgrade_solo_rb_path %>
+  <%= chef_solo_command %>
+else
+  <%= chef_apply_command %>
+fi
+
+# Cleanup
+
+rm -f <%= upgrade_solo_rb_path %>
+rm -rf <%= tmp_cookbook_path %>
+rm -f <%= recipe_path %>
+rm -rf <%= update_dir %>/*.rpm

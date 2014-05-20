@@ -194,6 +194,33 @@ module Ridley
       execute(__method__, host, options)
     end
 
+    # Update a node's Omnibus installation of Chef
+    #
+    # @param [String] host
+    #   the host to perform the action on
+    #
+    # @option options [String] :chef_version
+    #   the version of Chef to install on the node
+    # @option options [Boolean] :prerelease
+    #   install a prerelease version of Chef
+    # @option options [String] :direct_url
+    #   a url pointing directly to a Chef package to install
+    # @option options [Hash] :ssh
+    #   * :user (String) a shell user that will login to each node and perform the bootstrap command on
+    #   * :password (String) the password for the shell user that will perform the bootstrap
+    #   * :keys (Array, String) an array of key(s) to authenticate the ssh user with instead of a password
+    #   * :timeout (Float) timeout value for SSH bootstrap (5.0)
+    #   * :sudo (Boolean) run as sudo (true)
+    # @option options [Hash] :winrm
+    #   * :user (String) a user that will login to each node and perform the bootstrap command on
+    #   * :password (String) the password for the user that will perform the bootstrap (required)
+    #   * :port (Fixnum) the winrm port to connect on the node the bootstrap will be performed on (5985)
+    #
+    # @return [HostConnector::Response]
+    def update_omnibus(host, options = {})
+      execute(__method__, host, options)
+    end
+
     # Finds and returns the best HostConnector for a given host
     #
     # @param [String] host
