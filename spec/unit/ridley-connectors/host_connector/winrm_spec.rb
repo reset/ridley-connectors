@@ -180,4 +180,20 @@ describe Ridley::HostConnector::WinRM do
       ruby_script
     end
   end
+
+  describe "#connector_port_open?" do
+    context "when no winrm options are specified" do
+      it "should connect using the default winrm port" do
+        subject.should_receive(:port_open?).with(host, Ridley::HostConnector::WinRM::DEFAULT_PORT, nil)
+        subject.connector_port_open?(host, {})
+      end
+    end
+
+    context "when winrm options are given"  do
+      it "should use the winrm port" do
+        subject.should_receive(:port_open?).with(host, 1234, nil)
+        subject.connector_port_open?(host, winrm: {port: 1234})
+      end
+    end
+  end
 end

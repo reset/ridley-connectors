@@ -16,6 +16,34 @@ describe Ridley::HostConnector::SSH do
     }
   end
 
+  describe "#run" do
+    let(:ssh_user) { 'ssh_user' }
+
+    context "when a gateway is given" do
+      let(:gw_host) { "bar.com" }
+      let(:gw_user) { "foo" }
+      let(:gw_port) { "1234" }
+      let(:gateway) { double(Net::SSH::Gateway) }
+
+      before do
+        Net::SSH::Gateway.stub(:new).with(gw_host, gw_user, {:port => gw_port}).and_return(gateway)
+      end
+
+      it "should connect to the gateway with Net::SSH::Gateway and then to the destination host via the gateway" do
+        gateway.should_receive(:ssh).with(host, ssh_user, anything).ordered
+        gateway.should_receive(:shutdown!).ordered
+        subject.run(host, "some_command", ssh: { user: ssh_user, gateway: 'foo@bar.com:1234' })
+      end
+    end
+
+    context "when a gateway is not given" do
+      it "should use Net::SSH to connect to the destination host" do
+        Net::SSH.should_receive(:start).with(host, ssh_user, {:paranoid=>false, :port=>"1234", :user=>"ssh_user"})
+        subject.run(host, "some_command", ssh: { user: ssh_user, port: "1234" })
+      end
+    end
+  end
+
   describe "#bootstrap" do
     let(:bootstrap_context) { Ridley::BootstrapContext::Unix.new(options) }
 
@@ -92,6 +120,34 @@ describe Ridley::HostConnector::SSH do
       connector.should_receive(:run).with(host, command, options)
 
       connector.update_omnibus(host, options)
+    end
+  end
+
+  describe "#connector_port_open?" do
+    context "when there are no ssh options specified" do
+      it "should try to connect to the host on the defaul ssh port" do
+        subject.should_receive(:port_open?).with(host, Ridley::HostConnector::SSH::DEFAULT_PORT, nil)
+        subject.connector_port_open?(host, {})
+      end
+    end
+
+    context "when the port is specified" do
+      it "should try to connecto to the host on the given port" do
+        subject.should_receive(:port_open?).with(host, 1234, nil)
+        subject.connector_port_open?(host, ssh: {port: 1234} )
+      end
+    end
+
+    context "when the gateway is given" do
+      it "should try to connect to the gateway host" do
+        subject.should_receive(:port_open?).with("bar.com", "1234", nil)
+        subject.connector_port_open?(host, ssh: {gateway: 'foo@bar.com:1234'} )
+      end
+
+      it "should use the timeout from the ssh settings" do
+        subject.should_receive(:port_open?).with("bar.com", "1234", 12)
+        subject.connector_port_open?(host, ssh: {timeout: 12, gateway: 'foo@bar.com:1234'} )
+      end
     end
   end
 end

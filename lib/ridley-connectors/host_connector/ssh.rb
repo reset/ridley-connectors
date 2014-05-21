@@ -1,4 +1,5 @@
 require 'net/ssh'
+require 'net/ssh/gateway'
 
 module Ridley
   module HostConnector
@@ -6,7 +7,8 @@ module Ridley
       DEFAULT_PORT       = 22
       EMBEDDED_RUBY_PATH = '/opt/chef/embedded/bin/ruby'.freeze
 
-      # Execute a shell command on a node
+      # Execute a shell command on a node using ssh. If the gateway option is present then
+      # execute the command through the gateway.
       #
       # @param [String] host
       #   the host to perform the action on
@@ -18,6 +20,7 @@ module Ridley
       #   * :keys (Array, String) an array of key(s) to authenticate the ssh user with instead of a password
       #   * :timeout (Float) timeout value for SSH bootstrap (5.0)
       #   * :sudo (Boolean) run as sudo
+      #   * :gateway (String) user@host:port
       #
       # @return [HostConnector::Response]
       def run(host, command, options = {})
@@ -31,7 +34,7 @@ module Ridley
             log.info "Running SSH command: '#{command}' on: '#{host}' as: '#{options[:ssh][:user]}'"
 
             defer {
-              Net::SSH.start(host, options[:ssh][:user], options[:ssh].slice(*Net::SSH::VALID_OPTIONS)) do |ssh|
+              ssh(host, options) do |ssh|
                 ssh.open_channel do |channel|
                   if options[:sudo]
                     channel.request_pty do |channel, success|
@@ -225,7 +228,65 @@ module Ridley
         run(host, CommandContext::UnixUpdateOmnibus.command(options), options)
       end
 
+      # Checks to see if the given port is open for TCP connections
+      # on the given host. If a gateway is provided in the ssh
+      # options, then return true if we can connect to the gateway host.
+      # If no gateway config is found then just verify we can connect to
+      # the destination host.
+      #
+      # @param [String] host
+      #   the host to attempt to connect to
+      # @option options [Hash] :ssh
+      #   * :gateway (String) user@host:port
+      #   * :timeout (Float) timeout value for SSH
+      #   * :port (Fixnum) the SSH port
+      # @return [Boolean]
+      def connector_port_open?(host, options = {})
+        options[:ssh]          ||= Hash.new
+        options[:ssh][:port]   ||= HostConnector::SSH::DEFAULT_PORT
+
+        if options[:ssh][:gateway]
+          gw_host, gw_port, _ = gateway(options)
+          log.info("Connecting to host '#{gw_host}' via SSH gateway over port '#{gw_port}'")
+          port_open?(gw_host, gw_port, options[:ssh][:timeout])
+        else
+          port_open?(host, options[:ssh][:port], options[:ssh][:timeout])
+        end
+      end
+
       private
+
+        def gateway(options)
+          options[:ssh] ||= Hash.new
+
+          if options[:ssh][:gateway]
+            gw_host, gw_user = options[:ssh][:gateway].split("@").reverse
+            gw_host, gw_port = gw_host.split(":")
+            gw_port ||= HostConnector::SSH::DEFAULT_PORT
+            [gw_host, gw_port, gw_user]
+          else
+            [nil, nil, nil]
+          end
+        end
+
+        # Open an SSH connection either directly or through a gateway.
+        def ssh(host, options, &block)
+          if options[:ssh][:gateway]
+            gw_host, gw_port, gw_user = gateway(options)
+            gateway = Net::SSH::Gateway.new(gw_host, gw_user, {:port => gw_port})
+            begin
+              gateway.ssh(host, options[:ssh][:user], options[:ssh].slice(*Net::SSH::VALID_OPTIONS)) do |ssh|
+                yield ssh
+              end
+            ensure
+              gateway.shutdown!
+            end
+          else
+            Net::SSH.start(host, options[:ssh][:user], options[:ssh].slice(*Net::SSH::VALID_OPTIONS)) do |ssh|
+              yield ssh
+            end
+          end
+        end
 
         def channel_exec(channel, command, host, response)
           channel.exec(command) do |ch, success|
