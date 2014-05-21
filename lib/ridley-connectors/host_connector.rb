@@ -161,7 +161,6 @@ module Ridley
         end
         success
       end
-
     end
 
     require_relative 'host_connector/response'

@@ -267,7 +267,6 @@ module Ridley
           else
             [nil, nil, nil]
           end
-
         end
 
         # Open an SSH connection either directly or through a gateway.
