@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'erubis'
   s.add_dependency 'net-ssh'
   s.add_dependency 'net-ssh-gateway'
-  s.add_dependency 'ridley',       '~> 3.1'
+  s.add_dependency 'ridley',       '~> 4.0'
   s.add_dependency 'winrm',        '~> 1.1.0'
 
   s.add_development_dependency 'buff-ruby_engine', '~> 0.1'
