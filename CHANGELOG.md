@@ -1,3 +1,7 @@
+## 2.3.1
+
+* Fix installation problem on some Windows machines
+
 ## 2.3.0
 
 * Dependency update
