@@ -225,7 +225,7 @@ module Ridley
     #
     # @return [HostConnector::SSH, HostConnector::WinRM, NilClass]
     def connector_for(host, options = {})
-      connector = options[:connector]
+      connector = options[:connector].to_s
 
       if !VALID_CONNECTORS.include?(connector)
         log.debug { "Connector '#{connector}' is not one of #{VALID_CONNECTORS}. Determining connector..." }
@@ -233,10 +233,8 @@ module Ridley
       end
 
       if (connector == DEFAULT_WINDOWS_CONNECTOR || connector.nil?) && winrm.connector_port_open?(host, options)
-        options.delete(:ssh)
         winrm
       elsif (connector == DEFAULT_LINUX_CONNECTOR || connector.nil?) && ssh.connector_port_open?(host, options)
-        options.delete(:winrm)
         ssh
       else
         nil
@@ -260,10 +258,15 @@ module Ridley
         options = args.last.is_a?(Hash) ? args.pop : Hash.new
 
         connector = connector_for(host, options)
-        if connector.nil?
+        case connector
+        when nil
           log.warn { "No connector ports open on '#{host}'" }
           HostConnector::Response.new(host, stderr: "No connector ports open on '#{host}'")
-        else
+        when winrm
+          options.delete(:winrm)
+          connector.send(method, host, *args, options)
+        when ssh
+          options.delete(:ssh)
           connector.send(method, host, *args, options)
         end
       end
