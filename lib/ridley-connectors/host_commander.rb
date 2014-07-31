@@ -228,16 +228,14 @@ module Ridley
       connector = options[:connector]
 
       if !VALID_CONNECTORS.include?(connector)
-        log.warn { "Received connector '#{connector}' is not one of #{VALID_CONNECTORS}. Checking default connectors..." }
+        log.debug { "Connector '#{connector}' is not one of #{VALID_CONNECTORS}. Determining connector..." }
         connector = nil
       end
 
-      if (connector == DEFAULT_WINDOWS_CONNECTOR || connector.nil?) && 
-          winrm.connector_port_open?(host, options)
+      if (connector == DEFAULT_WINDOWS_CONNECTOR || connector.nil?) && winrm.connector_port_open?(host, options)
         options.delete(:ssh)
         winrm
-      elsif (connector == DEFAULT_LINUX_CONNECTOR || connector.nil?) && 
-          ssh.connector_port_open?(host, options)
+      elsif (connector == DEFAULT_LINUX_CONNECTOR || connector.nil?) && ssh.connector_port_open?(host, options)
         options.delete(:winrm)
         ssh
       else
