@@ -1,6 +1,5 @@
 module Ridley
   class NodeResource
-
     attr_reader :server_url
     attr_reader :validator_path
     attr_reader :validator_client
@@ -123,7 +122,7 @@ module Ridley
     # @param [String] host
     # @param [Array<String>] command_lines
     # @option options [String] :connector
-    #   a connectory type to prefer    
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def ruby_script(host, command_lines, options = {})
@@ -135,6 +134,8 @@ module Ridley
     #
     # @param [String] host
     # @param [String] command
+    # @option options [String] :connector
+    #   a connectory type to prefer
     #
     # @return [HostConnector::Response]
     def run(host, command, options = {})
