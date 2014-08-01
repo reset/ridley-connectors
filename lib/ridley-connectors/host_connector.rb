@@ -8,7 +8,7 @@ module Ridley
       RETRY_COUNT = 3
       CONNECTOR_PORT_ERRORS = [Errno::ETIMEDOUT,
                                Timeout::Error,
-                               SocketError, 
+                               SocketError,
                                Errno::ECONNREFUSED,
                                Errno::EHOSTUNREACH,
                                Errno::EADDRNOTAVAIL,
@@ -129,7 +129,7 @@ module Ridley
       # @param [Fixnum] port
       #   the port to attempt to connect on
       # @param [Fixnum] timeout ({PORT_CHECK_TIMEOUT})
-      # 
+      #
       # @return [Boolean]
       def connectable?(host, port, timeout = PORT_CHECK_TIMEOUT)
         addr = Socket.getaddrinfo(host, nil)

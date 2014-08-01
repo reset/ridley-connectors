@@ -18,7 +18,7 @@ describe Ridley::BootstrapContext::Base do
     describe ":included" do
       context "when a class includes Ridley::BootstrapBinding" do
         it "should have a validate_options class method`" do
-          subject.methods.should include(:validate_options)
+          expect(subject.methods).to include(:validate_options)
         end
       end
     end

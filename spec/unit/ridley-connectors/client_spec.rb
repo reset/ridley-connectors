@@ -21,11 +21,11 @@ describe Ridley::Client do
       subject { described_class.new(options) }
 
       it "assigns a 'ssh' attribute from the given 'ssh' option" do
-        described_class.new(config).ssh.should eql({user: "fake", password: "password1", port: "222"})
+        expect(described_class.new(config).ssh).to eql({user: "fake", password: "password1", port: "222"})
       end
 
       it "assigns a 'winrm' attribute from the given 'winrm' option" do
-        described_class.new(config).winrm.should eql({user: "fake", password: "password2", port: "5986"})
+        expect(described_class.new(config).winrm).to eql({user: "fake", password: "password2", port: "5986"})
       end
     end
   end

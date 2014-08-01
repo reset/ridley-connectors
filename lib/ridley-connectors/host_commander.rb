@@ -258,15 +258,14 @@ module Ridley
         options = args.last.is_a?(Hash) ? args.pop : Hash.new
 
         connector = connector_for(host, options)
-        case connector
-        when nil
+        if connector.nil?
           log.warn { "No connector ports open on '#{host}'" }
           HostConnector::Response.new(host, stderr: "No connector ports open on '#{host}'")
-        when winrm
-          options.delete(:winrm)
-          connector.send(method, host, *args, options)
-        when ssh
+        elsif connector.is_a?(winrm.class)
           options.delete(:ssh)
+          connector.send(method, host, *args, options)
+        elsif connector.is_a?(ssh.class)
+          options.delete(:winrm)
           connector.send(method, host, *args, options)
         end
       end

@@ -15,22 +15,26 @@ describe Ridley::HostConnector::WinRM::CommandUploader do
   let(:run_cmd_data) { { data: [{ stdout: "abc123" }] } }
   let(:command_file_name) { "my_command.bat" }
 
-  its(:winrm) { should eq(winrm_stub) }
+  describe "#winrm" do
+    it "is equal to the given winrm web service object" do
+      expect(subject.winrm).to eq(winrm_stub)
+    end
+  end
 
   before do
-    command_uploader.stub(:get_file_path).and_return("")
+    allow(command_uploader).to receive(:get_file_path) { "" }
   end
 
   describe "#upload" do
     let(:upload) { command_uploader.upload(command_string) }
 
     it "calls winrm to upload and convert the command" do
-      winrm_stub.should_receive(:run_cmd).and_return(
+      expect(winrm_stub).to receive(:run_cmd).and_return(
         run_cmd_data,
         nil,
         run_cmd_data
       )
-      winrm_stub.should_receive(:powershell)
+      expect(winrm_stub).to receive(:powershell)
 
       upload
     end
@@ -41,7 +45,7 @@ describe Ridley::HostConnector::WinRM::CommandUploader do
     let(:command) { command_uploader.command }
 
     before do
-      command_uploader.stub command_file_name: command_file_name
+      allow(command_uploader).to receive(:command_file_name) { command_file_name }
     end
 
     it { should eq("cmd.exe /C #{command_file_name}") }
@@ -54,13 +58,13 @@ describe Ridley::HostConnector::WinRM::CommandUploader do
     let(:base64_file_name) { "my_base64_file" }
 
     before do
-      command_uploader.stub command_file_name: command_file_name
-      command_uploader.stub base64_file_name: base64_file_name
+      allow(command_uploader).to receive(:command_file_name) { command_file_name }
+      allow(command_uploader).to receive(:base64_file_name) { base64_file_name }
     end
 
     it "cleans up the windows temp dir" do
-      winrm_stub.should_receive(:run_cmd).with("del #{base64_file_name} /F /Q")
-      winrm_stub.should_receive(:run_cmd).with("del #{command_file_name} /F /Q")
+      expect(winrm_stub).to receive(:run_cmd).with("del #{base64_file_name} /F /Q")
+      expect(winrm_stub).to receive(:run_cmd).with("del #{command_file_name} /F /Q")
       cleanup
     end
   end

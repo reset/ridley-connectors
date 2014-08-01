@@ -5,10 +5,8 @@ gemspec
 group :development do
   gem 'yard'
   gem 'spork'
-  gem 'guard', '~> 1.8'
+  gem 'guard', '~> 2.0'
   gem 'guard-rspec'
-  gem 'guard-spork', platforms: :ruby
-  gem 'fuubar'
 end
 
 group :test do
