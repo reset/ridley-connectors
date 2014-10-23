@@ -1,3 +1,9 @@
+## 2.4.0
+
+* Fix race condition with choosing and starting the appropriate connector
+* Bump required Celluloid/Celluloid-IO versions
+* Silence noisy warning output into debug output
+
 ## 2.3.1
 
 * Fix installation problem on some Windows machines

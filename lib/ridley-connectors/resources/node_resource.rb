@@ -193,7 +193,6 @@ module Ridley
       host_commander.uninstall_chef(host, options)
     end
 
-
     # Update a node's Omnibus installation of Chef
     #
     # @param [String] host
