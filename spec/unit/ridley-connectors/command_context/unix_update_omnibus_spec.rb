@@ -12,7 +12,7 @@ describe Ridley::CommandContext::UnixUpdateOmnibus do
 
     context "when prerelease is not given" do
       it "prerelease is set to false" do
-        expect(unix_update_omnibus.prerelease).to be_false
+        expect(unix_update_omnibus.prerelease).to be false
       end
     end
 
@@ -31,7 +31,7 @@ describe Ridley::CommandContext::UnixUpdateOmnibus do
       end
 
       it "sets prerelease" do
-        expect(unix_update_omnibus.prerelease).to be_true
+        expect(unix_update_omnibus.prerelease).to be true
       end
 
       it "sets direct_url" do

@@ -1,7 +1,9 @@
 RSpec.configuration.before(:each) do
-  class Celluloid::ActorProxy
-    [ :should_receive, :should_not_receive, :stub, :stub_chain, :should, :should_not ].each do |method|
-      undef_method(method) if method_defined?(method)
+  class Celluloid::CellProxy
+    unless @rspec_compatible
+      @rspec_compatible = true
+      undef_method :should_receive if method_defined?(:should_receive)
+      undef_method :stub if method_defined?(:stub)
     end
   end
 end

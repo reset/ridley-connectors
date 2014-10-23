@@ -132,9 +132,9 @@ module Ridley
       #
       # @return [Boolean]
       def connectable?(host, port, timeout = PORT_CHECK_TIMEOUT)
-        addr = Socket.getaddrinfo(host, nil)
+        addr     = Socket.getaddrinfo(host, nil)
         sockaddr = Socket.pack_sockaddr_in(port, addr[0][3])
-        socket = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
+        socket   = Socket.new(Socket.const_get(addr[0][0]), Socket::SOCK_STREAM, 0)
         socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
 
         success = false

@@ -19,7 +19,7 @@ describe Ridley::BootstrapContext::Unix do
           options.delete(:sudo)
           obj = subject.new(options)
 
-          obj.send(:sudo).should be_true
+          expect(obj.send(:sudo)).to be true
         end
       end
 
@@ -28,7 +28,7 @@ describe Ridley::BootstrapContext::Unix do
           options.merge!(sudo: false)
           obj = subject.new(options)
 
-          obj.send(:sudo).should be_false
+          expect(obj.send(:sudo)).to be false
         end
       end
     end
@@ -40,62 +40,62 @@ describe Ridley::BootstrapContext::Unix do
 
     describe "#templates_path" do
       it "returns a pathname" do
-        subject.templates_path.should be_a(Pathname)
+        expect(subject.templates_path).to be_a(Pathname)
       end
     end
 
     describe "#first_boot" do
       it "returns a string" do
-        subject.first_boot.should be_a(String)
+        expect(subject.first_boot).to be_a(String)
       end
     end
 
     describe "#encrypted_data_bag_secret" do
       it "returns a string" do
-        subject.encrypted_data_bag_secret.should be_a(String)
+        expect(subject.encrypted_data_bag_secret).to be_a(String)
       end
     end
 
     describe "#validation_key" do
       it "returns a string" do
-        subject.validation_key.should be_a(String)
+        expect(subject.validation_key).to be_a(String)
       end
     end
 
     describe "template" do
       it "returns a string" do
-        subject.template.should be_a(Erubis::Eruby)
+        expect(subject.template).to be_a(Erubis::Eruby)
       end
     end
   end
 
   describe "#boot_command" do
     it "returns a string" do
-      subject.boot_command.should be_a(String)
+      expect(subject.boot_command).to be_a(String)
     end
   end
 
   describe "#chef_run" do
     it "returns a string" do
-      subject.chef_run.should be_a(String)
+      expect(subject.chef_run).to be_a(String)
     end
   end
 
   describe "#chef_config" do
     it "returns a string" do
-      subject.chef_config.should be_a(String)
+      expect(subject.chef_config).to be_a(String)
     end
   end
 
   describe "#default_template" do
     it "returns a string" do
-      subject.default_template.should be_a(String)
+      expect(subject.default_template).to be_a(String)
     end
   end
 
   describe "#bootstrap_directory" do
     it "returns a string" do
-      subject.bootstrap_directory.should be_a(String)
+      expect(subject.bootstrap_directory).to be_a(String)
     end
   end
 end

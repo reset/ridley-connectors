@@ -55,7 +55,7 @@ describe Ridley::HostConnector::Base do
       Socket
         .stub(:getaddrinfo)
         .with(host, nil)
-        .and_return [["AF_INET", 0, "33.33.33.10", "33.33.33.10", 2, 2, 17], 
+        .and_return [["AF_INET", 0, "33.33.33.10", "33.33.33.10", 2, 2, 17],
                      ["AF_INET", 0, "33.33.33.10", "33.33.33.10", 2, 1,  6]]
     end
 
@@ -73,26 +73,26 @@ describe Ridley::HostConnector::Base do
 
       it "should return true when a connection is initiated" do
         ::IO.stub(:select).and_return ["an array!"]
-        
-        expect(subject.send(:connectable?, host, port)).to be_true
+
+        expect(subject.send(:connectable?, host, port)).to be true
       end
 
       it "should return true when a connection is initiated and an explicit nil is passed as the timeout" do
         ::IO.stub(:select).with(anything, anything, anything, Ridley::HostConnector::Base::PORT_CHECK_TIMEOUT).and_return ["an array!"]
-        
-        expect(subject.send(:connectable?, host, port, nil)).to be_true
+
+        expect(subject.send(:connectable?, host, port, nil)).to be true
       end
 
       it "should return false when select times out" do
         ::IO.stub(:select).and_return nil
 
-        expect(subject.send(:connectable?, host, port)).to be_false
+        expect(subject.send(:connectable?, host, port)).to be false
       end
 
       it "should return true when the connection does not have to wait" do
         Socket.any_instance.stub(:connect_nonblock).and_return 0
-        
-        expect(subject.send(:connectable?, host, port)).to be_true
+
+        expect(subject.send(:connectable?, host, port)).to be true
       end
     end
 
@@ -113,13 +113,13 @@ describe Ridley::HostConnector::Base do
 
         context "should return false" do
           it "" do
-            expect(subject.send(:connectable?, host, port)).to be_false
+            expect(subject.send(:connectable?, host, port)).to be false
           end
 
           it "when the socket close throws EBAFD" do
             Socket.any_instance.stub(:close).and_return { raise Errno::EBADF.new }
 
-            expect(subject.send(:connectable?, host, port)).to be_false
+            expect(subject.send(:connectable?, host, port)).to be false
           end
         end
       end

@@ -12,7 +12,7 @@ describe Ridley::CommandContext::WindowsUpdateOmnibus do
 
     context "when prerelease is not given" do
       it "prerelease is set to false" do
-        expect(windows_update_omnibus.prerelease).to be_false
+        expect(windows_update_omnibus.prerelease).to be false
       end
     end
 
@@ -31,7 +31,7 @@ describe Ridley::CommandContext::WindowsUpdateOmnibus do
       end
 
       it "sets prerelease" do
-        expect(windows_update_omnibus.prerelease).to be_true
+        expect(windows_update_omnibus.prerelease).to be true
       end
 
       it "sets direct_url" do

@@ -6,7 +6,7 @@ describe Ridley::CommandContext::UnixUninstall do
   describe "::new" do
     context "when skip_chef is not provided" do
       it "sets skip_chef to false" do
-        expect(unix_uninstall.skip_chef).to be_false
+        expect(unix_uninstall.skip_chef).to be false
       end
     end
   end
