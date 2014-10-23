@@ -17,8 +17,8 @@ Gem::Specification.new do |s|
   s.version       = Ridley::Connectors::VERSION
   s.required_ruby_version = ">= 1.9.1"
 
-  s.add_dependency 'celluloid',    '~> 0.16.0.pre'
-  s.add_dependency 'celluloid-io', '~> 0.16.0.pre'
+  s.add_dependency 'celluloid',    '~> 0.16.0'
+  s.add_dependency 'celluloid-io', '~> 0.16.1'
   s.add_dependency 'erubis'
   s.add_dependency 'net-ssh'
   s.add_dependency 'net-ssh-gateway'
