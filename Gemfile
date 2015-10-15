@@ -13,4 +13,5 @@ group :test do
   gem 'rspec'
   gem 'webmock'
   gem 'thor'
+  gem 'rake'
 end
