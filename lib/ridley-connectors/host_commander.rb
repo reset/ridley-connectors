@@ -225,7 +225,7 @@ module Ridley
     #
     # @return [HostConnector::SSH, HostConnector::WinRM, NilClass]
     def connector_for(host, options = {})
-      connector = options[:connector].to_s
+      connector = options[:connector].to_s || ENV['RIDLEY_CONNECTOR']
 
       if !VALID_CONNECTORS.include?(connector)
         log.debug { "Connector '#{connector}' is not one of #{VALID_CONNECTORS}. Determining connector..." }
